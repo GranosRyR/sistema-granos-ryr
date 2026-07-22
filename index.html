@@ -24,89 +24,82 @@
 </head>
 <body>
 
-  <!-- ══ SIDEBAR (Identico a Sistema Licorería) ══ -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="brand-logo" style="padding: 2px;">
-        <img src="Granos%20RyR%20SIN%20FONDO.png" alt="Granos RyR" style="width:100%; height:100%; object-fit:contain; border-radius:6px;" />
+  <!-- ══ FLOATING TOP DOCK BAR (macOS Style con Animaciones de Magnificación) ══ -->
+  <header class="top-dock-container" id="topDockContainer">
+    <!-- Brand Badge -->
+    <div class="dock-brand" title="Granos RyR">
+      <div class="dock-brand-logo-wrap">
+        <img src="Granos%20RyR%20SIN%20FONDO.png" alt="Granos RyR" class="dock-brand-logo" />
       </div>
-      <div class="brand-text">
-        <span class="brand-name">GRANOS RyR</span>
-        <span class="brand-sub">COMERCIALIZADORA</span>
-      </div>
+      <span class="dock-brand-text">GRANOS RyR</span>
     </div>
 
-    <!-- Sync Panel -->
-    <div class="sync-panel">
-      <button class="sync-btn" id="syncBtn" onclick="sincronizarConNube()" title="Sincronizar con Firebase">
+    <div class="dock-divider"></div>
+
+    <!-- Dock Navigation Items -->
+    <nav class="dock-nav" id="dockNav">
+      <a href="#" class="dock-item nav-item active" data-section="dashboard" data-tooltip="Dashboard" id="nav-dashboard">
+        <span class="dock-icon">◈</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="inventario" data-tooltip="Inventario" id="nav-inventario">
+        <span class="dock-icon">☐</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="pos" data-tooltip="Registrar Venta" id="nav-pos">
+        <span class="dock-icon">🛒</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="historial" data-tooltip="Historial" id="nav-historial">
+        <span class="dock-icon">≡</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="analytics" data-tooltip="Analíticas" id="nav-analytics">
+        <span class="dock-icon">◠</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="lotes" data-tooltip="Control de Lotes" id="nav-lotes">
+        <span class="dock-icon">⚠️</span>
+        <span class="nav-badge dock-badge" id="badge-lotes" style="display:none">0</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="agregar" data-tooltip="Agregar Producto" id="nav-agregar">
+        <span class="dock-icon">➕</span>
+        <span class="dock-dot"></span>
+      </a>
+      <a href="#" class="dock-item nav-item" data-section="qr" data-tooltip="Gestión de QR" id="nav-qr">
+        <span class="dock-icon">▣</span>
+        <span class="dock-dot"></span>
+      </a>
+    </nav>
+
+    <div class="dock-divider"></div>
+
+    <!-- Sync & Controls -->
+    <div class="dock-actions">
+      <button class="dock-btn-sync" id="syncBtn" onclick="sincronizarConNube()" title="Sincronizar con Firebase">
         <svg class="sync-icon" id="syncIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
         </svg>
-        <span id="syncLabel">Sincronizar</span>
-      </button>
-      <span class="sync-status">
         <span class="sync-dot online" id="syncDot"></span>
-        <span id="syncText">Modo Local (Listo)</span>
-      </span>
-    </div>
+      </button>
 
-    <!-- Switch de Tema Claro / Oscuro -->
-    <div class="theme-toggle">
-      <span class="theme-toggle-label" id="themeLabel">Modo claro</span>
       <label class="toggle-switch" title="Cambiar tema">
         <input type="checkbox" id="themeToggle" onchange="toggleTheme()" />
         <span class="toggle-track"></span>
         <span class="toggle-thumb" id="themeThumb">☀️</span>
       </label>
-    </div>
 
-    <!-- Navegación -->
-    <nav class="sidebar-nav">
-      <span class="nav-section-label">Principal</span>
-      <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
-        <span class="nav-icon">◈</span><span>Dashboard</span>
-      </a>
-      <a href="#" class="nav-item" data-section="inventario" id="nav-inventario">
-        <span class="nav-icon">☐</span><span>Inventario</span>
-      </a>
-      <span class="nav-section-label">Ventas</span>
-      <a href="#" class="nav-item" data-section="pos" id="nav-pos">
-        <span class="nav-icon">🛒</span><span>Registrar Venta</span>
-      </a>
-      <a href="#" class="nav-item" data-section="historial" id="nav-historial">
-        <span class="nav-icon">≡</span><span>Historial</span>
-      </a>
-      <a href="#" class="nav-item" data-section="analytics" id="nav-analytics">
-        <span class="nav-icon">◠</span><span>Analíticas</span>
-      </a>
-      <span class="nav-section-label">Gestión</span>
-      <a href="#" class="nav-item" data-section="lotes" id="nav-lotes">
-        <span class="nav-icon">⚠️</span><span>Control de Lotes</span>
-        <span class="nav-badge" id="badge-lotes" style="display:none">0</span>
-      </a>
-      <a href="#" class="nav-item" data-section="agregar" id="nav-agregar">
-        <span class="nav-icon">+</span><span>Agregar Producto</span>
-      </a>
-      <a href="#" class="nav-item" data-section="qr" id="nav-qr">
-        <span class="nav-icon">▣</span><span>Gestión de QR</span>
-      </a>
-    </nav>
-
-    <!-- Footer Sidebar -->
-    <div class="sidebar-footer">
-      <div style="display:flex; gap:6px; margin-bottom:10px;">
-        <button class="btn-backup" onclick="exportarDatosJSON()" title="Descargar copia de seguridad">
-          ↓ Exportar
-        </button>
-        <label class="btn-backup" title="Cargar copia de seguridad" style="cursor:pointer; text-align:center;">
-          ↑ Importar
+      <div class="dock-backup-group">
+        <button class="dock-btn-icon" onclick="exportarDatosJSON()" title="Exportar Backup">↓</button>
+        <label class="dock-btn-icon" title="Importar Backup" style="cursor:pointer;">
+          ↑
           <input type="file" accept=".json" style="display:none" onchange="importarDatosJSON(event)" />
         </label>
       </div>
-      <span class="footer-version">v3.0 &middot; GRANOS RyR</span>
     </div>
-  </aside>
+  </header>
 
   <!-- ══ TOPBAR MOBILE ══ -->
   <header class="topbar">
