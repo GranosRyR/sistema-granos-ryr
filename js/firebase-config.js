@@ -5,12 +5,12 @@
 
 // Reemplaza estas credenciales cuando crees tu proyecto en la consola de Firebase: https://console.firebase.google.com/
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
+    apiKey: "AIzaSyDxWdVMD1FUxaba-O5cw70oAruMnb-jxmE",
     authDomain: "granos-ryr.firebaseapp.com",
     projectId: "granos-ryr",
-    storageBucket: "granos-ryr.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456"
+    storageBucket: "granos-ryr.firebasestorage.app",
+    messagingSenderId: "535873461807",
+    appId: "1:535873461807:web:1c1492fe76c40e9d7f30da"
 };
 
 // Variable de estado global para controlar si Firebase está activo
