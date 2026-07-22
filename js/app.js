@@ -789,37 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // MAGNIFICACIÓN ESTRUCTURA macOS DOCK CON INTERACCIÓN FÍSICA
-    function initDockMagnification() {
-        const dockNav = document.getElementById('dockNav');
-        if (!dockNav) return;
-        const items = dockNav.querySelectorAll('.dock-item');
-
-        dockNav.addEventListener('mousemove', (e) => {
-            const mouseX = e.clientX;
-            items.forEach((item) => {
-                const rect = item.getBoundingClientRect();
-                const itemCenterX = rect.left + rect.width / 2;
-                const distance = Math.abs(mouseX - itemCenterX);
-                
-                // Rango de influencia de 140px como en Framer Motion
-                const maxDistance = 140;
-                if (distance < maxDistance) {
-                    const scale = 1 + 0.32 * Math.cos((distance / maxDistance) * (Math.PI / 2));
-                    const translateY = -4 * (1 - distance / maxDistance);
-                    item.style.transform = `translateY(${translateY}px) scale(${scale})`;
-                } else {
-                    item.style.transform = '';
-                }
-            });
-        });
-
-        dockNav.addEventListener('mouseleave', () => {
-            items.forEach((item) => {
-                item.style.transform = '';
-            });
-        });
-    }
 
     // INICIALIZACIÓN
     initTheme();
@@ -827,6 +796,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     initSplitTitle();
     updateQRPreview();
-    initDockMagnification();
     renderActiveSection();
 });
