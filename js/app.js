@@ -250,6 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'lotes':
                 renderLotes();
                 break;
+            case 'agregar':
+            case 'qr':
+                break;
         }
         updateBadges();
     }
@@ -499,6 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('posCustomerName').value = '';
         document.getElementById('posCustomerNit').value = '';
         document.getElementById('posCustomerPhone').value = '';
+        document.getElementById('posProductSelect').value = '';
+        document.getElementById('posLoteSelect').innerHTML = '<option value="">-- Seleccionar Lote --</option>';
+        document.getElementById('posQuantity').value = '1';
+        document.getElementById('posUnitPrice').value = '';
+        document.getElementById('posPaymentMethod').value = 'Efectivo';
         renderPOSCart();
     };
 
@@ -738,6 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         reader.readAsText(file);
+        event.target.value = '';
     };
 
     window.handleQRUpload = function(event) {

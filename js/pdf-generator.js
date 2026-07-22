@@ -14,13 +14,71 @@ window.PDFGenerator = {
         return `<img src="Granos RyR SIN FONDO.png" alt="Granos RyR Logo" style="max-height: 115px; width: auto; object-fit: contain;" />`;
     },
 
-    /**
-     * Convierte un número a texto literal en Bolivianos
-     */
     numeroALetras(monto) {
         const entero = Math.floor(monto);
         const centavos = Math.round((monto - entero) * 100).toString().padStart(2, '0');
-        return `Bs. ${monto.toFixed(2)} (${entero} ${centavos}/100 BOLIVIANOS)`;
+
+        const unidades = ['CERO', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
+        const especiales = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISÉIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
+        const decenas = ['', '', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+        const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+
+        function convertirGrupo(n) {
+            if (n === 0) return '';
+            let res = '';
+            const c = Math.floor(n / 100);
+            const d = Math.floor((n % 100) / 10);
+            const u = n % 10;
+
+            if (c > 0) {
+                res += (c === 1 && d === 0 && u === 0) ? 'CIEN' : centenas[c];
+                if (d > 0 || u > 0) res += ' ';
+            }
+
+            if (d === 1) {
+                res += especiales[u];
+            } else {
+                if (d > 1) {
+                    res += (d === 2 && u > 0) ? 'VEINTI' : decenas[d];
+                    if (d > 2 && u > 0) res += ' Y ';
+                }
+                if (u > 0) {
+                    if (d > 1) {
+                        if (d < 2) res += unidades[u];
+                        else if (d === 2) res += unidades[u].toLowerCase();
+                        else res += unidades[u].toLowerCase();
+                    } else {
+                        res += unidades[u];
+                    }
+                }
+            }
+            return res.trim();
+        }
+
+        if (entero === 0) return `Bs. 0.00 (CERO ${centavos}/100 BOLIVIANOS)`;
+
+        const millones = Math.floor(entero / 1000000);
+        const miles = Math.floor((entero % 1000000) / 1000);
+        const resto = entero % 1000;
+
+        let letras = '';
+        if (millones > 0) {
+            if (millones === 1) {
+                letras += 'UN MILLÓN';
+            } else {
+                letras += convertirGrupo(millones) + ' MILLONES';
+            }
+            if (miles > 0 || resto > 0) letras += ' ';
+        }
+        if (miles > 0) {
+            letras += (miles === 1 ? 'MIL' : convertirGrupo(miles) + ' MIL');
+            if (resto > 0) letras += ' ';
+        }
+        if (resto > 0) {
+            letras += convertirGrupo(resto);
+        }
+
+        return `Bs. ${monto.toFixed(2)} (${letras.trim()} ${centavos}/100 BOLIVIANOS)`;
     },
 
     /**
