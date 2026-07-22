@@ -104,7 +104,7 @@ window.PDFGenerator = {
         `).join('');
 
         return `
-            <div id="printableReceiptArea" class="word-document-letter" style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #ffffff; color: #0f172a; padding: 35px 40px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 800px; margin: 0 auto; box-sizing: border-box;">
+            <div id="printableReceiptArea" class="word-document-letter" style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; background: #ffffff; color: #0f172a; padding: 35px 40px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 800px; margin: 0 auto; box-sizing: border-box;">
                 
                 <!-- 1. ENCABEZADO MEMBRETADO: LOGO MÁS GRANDE Y RECUADRO 'RECIBO' COMPACTO A LA DERECHA -->
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #b45309; padding-bottom: 18px; margin-bottom: 22px;">
@@ -115,7 +115,7 @@ window.PDFGenerator = {
                     
                     <!-- Datos de la Empresa -->
                     <div style="flex: 1; padding: 0 10px; text-align: center;">
-                        <h1 style="margin: 0; color: #b45309; font-size: 26px; font-weight: 900; letter-spacing: 1px; font-family: 'Outfit', sans-serif;">GRANOS RyR</h1>
+                        <h1 style="margin: 0; color: #b45309; font-size: 26px; font-weight: 900; letter-spacing: 1px; font-family: 'Space Grotesk', sans-serif;">GRANOS RyR</h1>
                         <p style="margin: 3px 0 0 0; font-size: 12px; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">COMERCIALIZADORA & NUTRICIÓN ANIMAL</p>
                         <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569;">Venta de Soya, Sorgo, Maíz, Cascarilla de Soya y Soya Molida</p>
                         <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">NIT: 10293847501 &middot; Tel/WhatsApp: +591 70000000 &middot; Santa Cruz - Bolivia</p>
@@ -166,7 +166,7 @@ window.PDFGenerator = {
 
                     <div style="flex: 0 0 240px; background: #ffffff; border: 2px solid #0f172a; border-radius: 8px; padding: 14px; text-align: right;">
                         <div style="font-size: 12px; color: #475569; font-weight: 600;">TOTAL COBRADO</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #b45309; margin-top: 4px; font-family: 'Outfit', sans-serif;">Bs. ${totalNum.toFixed(2)}</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #b45309; margin-top: 4px; font-family: 'Space Grotesk', sans-serif;">Bs. ${totalNum.toFixed(2)}</div>
                     </div>
                 </div>
 

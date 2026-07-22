@@ -7,16 +7,22 @@
   <title>GRANOS RyR &ndash; Sistema de Inventario, POS y Facturación</title>
   <meta name="description" content="Sistema de control de inventario, lotaje, POS y facturación para Granos RyR." />
   
-  <!-- Google Fonts (Inter & Outfit) -->
+  <!-- Google Fonts (Plus Jakarta Sans & Space Grotesk) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   
   <!-- Estilos visuales exactos de Sistema Licorería -->
   <link rel="stylesheet" href="css/style.css" />
 
   <!-- html2pdf para descargas en PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Chart.js para gráficos interactivos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- SheetJS para exportación Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Firebase App & Firestore SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -43,19 +49,19 @@
         <span class="dock-dot"></span>
       </a>
       <a href="#" class="dock-item nav-item" data-section="inventario" data-tooltip="Inventario" id="nav-inventario">
-        <span class="dock-icon">📦</span>
+        <img src="ICONOS/icono%201.png" alt="Inventario" class="dock-icon-img" />
         <span class="dock-dot"></span>
       </a>
       <a href="#" class="dock-item nav-item" data-section="pos" data-tooltip="Registrar Venta" id="nav-pos">
-        <span class="dock-icon">🛒</span>
+        <img src="ICONOS/registro%20de%20venta.png" alt="Venta" class="dock-icon-img" />
         <span class="dock-dot"></span>
       </a>
       <a href="#" class="dock-item nav-item" data-section="historial" data-tooltip="Historial" id="nav-historial">
-        <span class="dock-icon">📋</span>
+        <img src="ICONOS/historial.png" alt="Historial" class="dock-icon-img" />
         <span class="dock-dot"></span>
       </a>
       <a href="#" class="dock-item nav-item" data-section="analytics" data-tooltip="Analíticas" id="nav-analytics">
-        <span class="dock-icon">📈</span>
+        <img src="ICONOS/analitica.png" alt="Analíticas" class="dock-icon-img" />
         <span class="dock-dot"></span>
       </a>
       <a href="#" class="dock-item nav-item" data-section="lotes" data-tooltip="Control de Lotes" id="nav-lotes">
@@ -92,7 +98,8 @@
       </label>
 
       <div class="dock-backup-group">
-        <button class="dock-btn-icon" onclick="exportarDatosJSON()" title="Exportar Backup">↓</button>
+        <button class="dock-btn-icon" onclick="exportarConsolidadoExcel()" title="Exportar Reporte Excel" style="color:var(--green); font-weight:800;">📊</button>
+        <button class="dock-btn-icon" onclick="exportarDatosJSON()" title="Exportar Backup JSON">↓</button>
         <label class="dock-btn-icon" title="Importar Backup" style="cursor:pointer;">
           ↑
           <input type="file" accept=".json" style="display:none" onchange="importarDatosJSON(event)" />
@@ -170,6 +177,22 @@
         </div>
       </div>
 
+      <!-- Gráficos Interactivos Chart.js -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="section-title" style="margin-bottom:12px; font-size:1rem;">📈 Tendencia de Ventas y Ganancias</h3>
+          <div style="position:relative; max-height:260px;">
+            <canvas id="chartSalesTrend"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3 class="section-title" style="margin-bottom:12px; font-size:1rem;">🍩 Ventas por Tipo de Grano</h3>
+          <div style="position:relative; max-height:260px; display:flex; justify-content:center;">
+            <canvas id="chartSalesByCategory"></canvas>
+          </div>
+        </div>
+      </div>
+
       <!-- Ventas Recientes -->
       <div class="table-wrap" style="margin-top: 20px;">
         <div style="padding: 16px; border-bottom: 1px solid var(--border);">
@@ -196,16 +219,16 @@
     <section class="section" id="section-inventario">
       <div class="section-header">
         <div>
-          <h1>Inventario de Granos</h1>
-          <p class="section-sub">Todos los productos y lotes de Granos RyR</p>
+          <h1>Inventario</h1>
+          <p class="section-sub">Todos los productos de Granos RyR</p>
         </div>
-        <button class="btn btn-primary" onclick="switchSection('agregar')">+ Nuevo Producto / Lote</button>
+        <button class="btn btn-primary" onclick="switchSection('agregar')">+ Nuevo Producto</button>
       </div>
 
       <div class="toolbar">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="Buscar grano..." onkeyup="filterInventoryTable()" />
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar producto..." onkeyup="filterInventoryTable()" />
         </div>
         <select id="filterCategoria" class="filter-select" onchange="filterInventoryTable()">
           <option value="">Todas las categorías</option>
@@ -221,12 +244,14 @@
         <table class="inv-table">
           <thead>
             <tr>
-              <th>Grano / Producto</th>
-              <th>Categoría</th>
-              <th>Unidad</th>
-              <th>Lotes Activos</th>
-              <th>Stock Disponible</th>
-              <th>Rango Precios</th>
+              <th style="width:40px"></th>
+              <th>Producto</th>
+              <th>Cat.</th>
+              <th>Stock (Total)</th>
+              <th>Costo</th>
+              <th>Venta</th>
+              <th>Ganancia</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -327,7 +352,7 @@
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:10px; background:var(--bg3); border-radius:var(--radius-sm);">
             <span style="font-weight:600; color:var(--text2);">Total a Cobrar:</span>
-            <span style="font-family:'Outfit'; font-size:1.6rem; font-weight:900; color:var(--green);" id="posCartTotalAmount">Bs. 0.00</span>
+            <span style="font-family:'Space Grotesk'; font-size:1.6rem; font-weight:900; color:var(--green);" id="posCartTotalAmount">Bs. 0.00</span>
           </div>
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
@@ -471,7 +496,7 @@
     <!-- 7. AGREGAR PRODUCTO O LOTE -->
     <section class="section" id="section-agregar">
       <div style="max-width: 600px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
-        <h2 style="font-family:'Outfit'; margin-bottom: 6px;">➕ Registrar Producto o Lote</h2>
+        <h2 style="font-family:'Space Grotesk'; margin-bottom: 6px;">➕ Registrar Producto o Lote</h2>
         <p style="color: var(--text3); font-size: 0.85rem; margin-bottom: 20px;">Si el grano ya existe, el sistema lo agregará como un nuevo Lote de compra.</p>
 
         <div style="margin-bottom: 12px;">
@@ -518,6 +543,11 @@
           </div>
         </div>
 
+        <!-- Vista previa del margen de ganancia calculado -->
+        <div class="margin-preview-bar" id="newMarginPreview">
+          <span class="margin-value margin-neutral">Ingrese costo y precio de venta</span>
+        </div>
+
         <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="saveNewProductOrLote()">💾 Guardar Producto / Lote</button>
       </div>
     </section>
@@ -531,7 +561,7 @@
         </div>
       </div>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; max-width: 500px; margin: 0 auto;">
-        <h2 style="font-family:'Outfit'; margin-bottom:16px;">Sube tu Código QR</h2>
+        <h2 style="font-family:'Space Grotesk'; margin-bottom:16px;">Sube tu Código QR</h2>
         <div id="qrPreviewContainer" style="margin-bottom: 20px; min-height: 200px; border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg2);">
           <img id="qrPreviewImage" src="" alt="Vista previa QR" style="max-width: 100%; max-height: 300px; display: none;" />
           <span id="qrPlaceholderText" style="color: var(--text3);">No hay QR configurado</span>
@@ -558,6 +588,50 @@
         <button class="btn btn-secondary" id="btnModalPrint">🖨️ Imprimir Recibo</button>
         <button class="btn btn-primary" id="btnModalDownloadPDF">📥 Descargar PDF</button>
         <button class="btn btn-whatsapp" id="btnModalWhatsApp">💬 Enviar WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL AJUSTE DE PRECIO ══ -->
+  <div class="modal-overlay" id="priceAdjustModal" style="display:none;">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <h3>💰 Ajustar Precios</h3>
+        <button class="modal-close" onclick="closePriceAdjustModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text2); font-size:0.85rem; margin-bottom:14px;">
+          Ajusta el costo o precio de venta de <strong id="adjustProductName"></strong>
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Costo Actual (Bs./Ql.)</label>
+            <input type="number" id="adjustCurrentCost" class="pos-shadcn-input" readonly style="opacity:0.7;" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Venta Actual (Bs./Ql.)</label>
+            <input type="number" id="adjustCurrentSale" class="pos-shadcn-input" readonly style="opacity:0.7;" />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Ajustar Costo (+/-%)</label>
+            <input type="number" id="adjustCostPercent" class="pos-shadcn-input" placeholder="Ej: 10 o -5" step="any" oninput="previewAdjustPrice()" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Ajustar Venta (+/-%)</label>
+            <input type="number" id="adjustSalePercent" class="pos-shadcn-input" placeholder="Ej: 15 o -10" step="any" oninput="previewAdjustPrice()" />
+          </div>
+        </div>
+        <div style="background:var(--bg3); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.82rem;">
+            <div><span style="color:var(--text3);">Nuevo Costo:</span> <strong id="previewNewCost">Bs. 0.00</strong></div>
+            <div><span style="color:var(--text3);">Nueva Venta:</span> <strong id="previewNewSale" style="color:var(--green);">Bs. 0.00</strong></div>
+            <div><span style="color:var(--text3);">Margen Actual:</span> <strong id="previewOldMargin">0%</strong></div>
+            <div><span style="color:var(--text3);">Nuevo Margen:</span> <strong id="previewNewMargin" style="color:var(--green);">0%</strong></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="applyPriceAdjust()">✅ Aplicar Ajuste</button>
       </div>
     </div>
   </div>
