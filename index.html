@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#09090b" />
+  <title>GRANOS RyR &ndash; Sistema de Inventario, POS y Facturación</title>
+  <meta name="description" content="Sistema de control de inventario, lotaje, POS y facturación para Granos RyR." />
+  
+  <!-- Google Fonts (Inter & Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <!-- Estilos visuales exactos de Sistema Licorería -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- html2pdf para descargas en PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Firebase App & Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- ══ SIDEBAR (Identico a Sistema Licorería) ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-logo" style="padding: 2px;">
+        <img src="Granos RyR SIN FONDO.png" alt="Granos RyR" style="width:100%; height:100%; object-fit:contain; border-radius:6px;" />
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">GRANOS RyR</span>
+        <span class="brand-sub">COMERCIALIZADORA</span>
+      </div>
+    </div>
+
+    <!-- Sync Panel -->
+    <div class="sync-panel">
+      <button class="sync-btn" id="syncBtn" onclick="sincronizarConNube()" title="Sincronizar con Firebase">
+        <svg class="sync-icon" id="syncIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        <span id="syncLabel">Sincronizar</span>
+      </button>
+      <span class="sync-status">
+        <span class="sync-dot online" id="syncDot"></span>
+        <span id="syncText">Modo Local (Listo)</span>
+      </span>
+    </div>
+
+    <!-- Switch de Tema Claro / Oscuro -->
+    <div class="theme-toggle">
+      <span class="theme-toggle-label" id="themeLabel">Modo claro</span>
+      <label class="toggle-switch" title="Cambiar tema">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()" />
+        <span class="toggle-track"></span>
+        <span class="toggle-thumb" id="themeThumb">☀️</span>
+      </label>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+      <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
+        <span class="nav-icon">◈</span><span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-section="inventario" id="nav-inventario">
+        <span class="nav-icon">☐</span><span>Inventario</span>
+      </a>
+      <span class="nav-section-label">Ventas</span>
+      <a href="#" class="nav-item" data-section="pos" id="nav-pos">
+        <span class="nav-icon">🛒</span><span>Registrar Venta</span>
+      </a>
+      <a href="#" class="nav-item" data-section="historial" id="nav-historial">
+        <span class="nav-icon">≡</span><span>Historial</span>
+      </a>
+      <a href="#" class="nav-item" data-section="analytics" id="nav-analytics">
+        <span class="nav-icon">◠</span><span>Analíticas</span>
+      </a>
+      <span class="nav-section-label">Gestión</span>
+      <a href="#" class="nav-item" data-section="lotes" id="nav-lotes">
+        <span class="nav-icon">⚠️</span><span>Control de Lotes</span>
+        <span class="nav-badge" id="badge-lotes" style="display:none">0</span>
+      </a>
+      <a href="#" class="nav-item" data-section="agregar" id="nav-agregar">
+        <span class="nav-icon">+</span><span>Agregar Producto</span>
+      </a>
+      <a href="#" class="nav-item" data-section="qr" id="nav-qr">
+        <span class="nav-icon">▣</span><span>Gestión de QR</span>
+      </a>
+    </nav>
+
+    <!-- Footer Sidebar -->
+    <div class="sidebar-footer">
+      <div style="display:flex; gap:6px; margin-bottom:10px;">
+        <button class="btn-backup" onclick="exportarDatosJSON()" title="Descargar copia de seguridad">
+          ↓ Exportar
+        </button>
+        <label class="btn-backup" title="Cargar copia de seguridad" style="cursor:pointer; text-align:center;">
+          ↑ Importar
+          <input type="file" accept=".json" style="display:none" onchange="importarDatosJSON(event)" />
+        </label>
+      </div>
+      <span class="footer-version">v3.0 &middot; GRANOS RyR</span>
+    </div>
+  </aside>
+
+  <!-- ══ TOPBAR MOBILE ══ -->
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-brand">GRANOS RyR</div>
+    <div class="topbar-right">
+      <button class="sync-btn" onclick="sincronizarConNube()" style="padding:4px 8px; font-size:0.75rem;">⚡ Sync</button>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- ══ CONTENIDO PRINCIPAL ══ -->
+  <main class="main-content">
+
+    <!-- 1. DASHBOARD -->
+    <section class="section active" id="section-dashboard">
+      <div class="section-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="section-sub">Bienvenido &mdash; SISTEMA GRANOS RyR</p>
+        </div>
+      </div>
+
+      <div class="shop-title-container">
+        <h1 class="shop-title" id="shop-title">GRANOS RyR</h1>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap">🌾</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="stat-total-productos">0</span>
+            <span class="stat-label">Total Productos</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap">📦</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="stat-total-stock">0 Ql.</span>
+            <span class="stat-label">Stock en Quintales</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="stat-lotes-bajo">0</span>
+            <span class="stat-label">Lotes con Stock Bajo</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap">💰</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="stat-ventas-hoy">Bs. 0.00</span>
+            <span class="stat-label">Ventas de Hoy</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrap">📈</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="stat-ganancia-hoy">Bs. 0.00</span>
+            <span class="stat-label">Ganancia Neta (Hoy)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ventas Recientes -->
+      <div class="table-wrap" style="margin-top: 20px;">
+        <div style="padding: 16px; border-bottom: 1px solid var(--border);">
+          <h3 class="section-title" style="margin:0;">🛒 Últimas Ventas Registradas</h3>
+        </div>
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>ID Venta</th>
+              <th>Cliente</th>
+              <th>WhatsApp</th>
+              <th>Monto Total</th>
+              <th>Método de Pago</th>
+            </tr>
+          </thead>
+          <tbody id="dashRecentSalesBody">
+            <!-- Dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. INVENTARIO -->
+    <section class="section" id="section-inventario">
+      <div class="section-header">
+        <div>
+          <h1>Inventario de Granos</h1>
+          <p class="section-sub">Todos los productos y lotes de Granos RyR</p>
+        </div>
+        <button class="btn btn-primary" onclick="switchSection('agregar')">+ Nuevo Producto / Lote</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar grano..." onkeyup="filterInventoryTable()" />
+        </div>
+        <select id="filterCategoria" class="filter-select" onchange="filterInventoryTable()">
+          <option value="">Todas las categorías</option>
+          <option value="Soya">Soya</option>
+          <option value="Maíz">Maíz</option>
+          <option value="Sorgo">Sorgo</option>
+          <option value="Cascarilla">Cascarilla</option>
+          <option value="Derivados">Derivados</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Grano / Producto</th>
+              <th>Categoría</th>
+              <th>Unidad</th>
+              <th>Lotes Activos</th>
+              <th>Stock Disponible</th>
+              <th>Rango Precios</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="invTableBody">
+            <!-- Dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. CAJA RÁPIDA / POS -->
+    <section class="section" id="section-pos">
+      <div class="section-header">
+        <div>
+          <h1>Registrar Venta</h1>
+          <p class="section-sub">Caja rápida para PC y Celular con facturación PDF y WhatsApp</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        
+        <!-- Columna Izquierda: Selección -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+          <h3 class="section-title">🌾 Selección de Granos</h3>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 0.8rem; font-weight:600; color: var(--text2);">Producto / Grano:</label>
+            <select id="posProductSelect" class="search-input" style="padding-left:11px;" onchange="onPOSProductChange()">
+              <option value="">-- Seleccionar --</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 0.8rem; font-weight:600; color: var(--text2);">Lote de Origen:</label>
+            <select id="posLoteSelect" class="search-input" style="padding-left:11px;" onchange="onPOSLoteChange()">
+              <option value="">-- Seleccionar Lote --</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+            <div>
+              <label style="font-size: 0.8rem; font-weight:600; color: var(--text2);">Presentación:</label>
+              <select id="posUnitType" class="search-input" style="padding-left:11px;">
+                <option value="Quintal (46 kg)">Quintal (46 kg)</option>
+                <option value="Medio Quintal (23 kg)">Medio Quintal (23 kg)</option>
+                <option value="Saco Especial">Saco Especial</option>
+                <option value="Kilos (Kg)">Kilos (Kg)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; font-weight:600; color: var(--text2);">Cantidad:</label>
+              <input type="number" id="posQuantity" class="pos-shadcn-input" value="1" min="0.1" step="any" />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.8rem; font-weight:600; color: var(--text2);">Precio Unitario (Bs.):</label>
+            <input type="number" id="posUnitPrice" class="pos-shadcn-input" placeholder="0.00" step="any" />
+          </div>
+
+          <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="addPosItem()">➕ Agregar a la Venta</button>
+        </div>
+
+        <!-- Columna Derecha: Cliente y Carrito -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+          <h3 class="section-title">👤 Datos del Cliente</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <input type="text" id="posCustomerName" class="pos-shadcn-input" placeholder="Nombre del Cliente" />
+            <input type="text" id="posCustomerNit" class="pos-shadcn-input" placeholder="NIT / CI" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+            <input type="tel" id="posCustomerPhone" class="pos-shadcn-input" placeholder="WhatsApp (Ej. 71234567)" />
+            <select id="posPaymentMethod" class="search-input" style="padding-left:11px;">
+              <option value="Efectivo">Efectivo</option>
+              <option value="QR / Transferencia">QR / Transferencia</option>
+              <option value="Crédito / A Cuenta">Crédito / A Cuenta</option>
+            </select>
+          </div>
+
+          <div class="table-wrap" style="max-height: 180px; overflow-y: auto; margin-bottom: 16px;">
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th>Grano</th>
+                  <th>Lote</th>
+                  <th>Cant</th>
+                  <th>Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="posCartTableBody">
+                <!-- Dinámico JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:10px; background:var(--bg3); border-radius:var(--radius-sm);">
+            <span style="font-weight:600; color:var(--text2);">Total a Cobrar:</span>
+            <span style="font-family:'Outfit'; font-size:1.6rem; font-weight:900; color:var(--green);" id="posCartTotalAmount">Bs. 0.00</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button class="btn btn-secondary" style="justify-content:center;" onclick="processSale(false)">💾 Guardar Venta</button>
+            <button class="btn btn-whatsapp" style="justify-content:center;" onclick="processSale(true)">💬 Guardar y Enviar</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. HISTORIAL DE VENTAS -->
+    <section class="section" id="section-historial">
+      <div class="section-header">
+        <div>
+          <h1>Historial de Ventas</h1>
+          <p class="section-sub">Registro de comprobantes e impresiones</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchHistoryInput" class="search-input" placeholder="Buscar por cliente o ID..." onkeyup="filterHistoryTable()" />
+        </div>
+        <input type="date" id="filterHistoryDate" class="filter-select" onchange="filterHistoryTable()" />
+      </div>
+
+      <div class="table-wrap">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>N° Comprobante</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>WhatsApp</th>
+              <th>Método Pago</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. ANALÍTICAS -->
+    <section class="section" id="section-analytics">
+      <div class="section-header">
+        <div>
+          <h1>Analíticas</h1>
+          <p class="section-sub">Métricas financieras y ganancias netas</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap">💰</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaTotalRevenue">Bs. 0.00</span>
+            <span class="stat-label">Ingresos Totales</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">📦</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaTotalCOGS">Bs. 0.00</span>
+            <span class="stat-label">Costo de Ventas</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">📈</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaNetProfit" style="color:var(--green);">Bs. 0.00</span>
+            <span class="stat-label">Ganancia Neta Real</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">🧾</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaTotalVentas">0</span>
+            <span class="stat-label">Total Ventas Realizadas</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">⭐</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaTopProducto">-</span>
+            <span class="stat-label">Producto Más Vendido</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">📊</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaVentasComparacion">-</span>
+            <span class="stat-label">Ventas Hoy vs Ayer</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">💎</div>
+          <div class="stat-info">
+            <span class="stat-value value-animated" id="anaMargenPromedio">0%</span>
+            <span class="stat-label">Margen Promedio %</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CONTROL DE LOTES -->
+    <section class="section" id="section-lotes">
+      <div class="section-header">
+        <div>
+          <h1>Control por Lotes</h1>
+          <p class="section-sub">Trazabilidad de cosechas y precios de compra</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Código de Lote</th>
+              <th>Grano</th>
+              <th>Costo Compra</th>
+              <th>Precio Venta</th>
+              <th>Margen %</th>
+              <th>Stock Disponible</th>
+              <th>Proveedor</th>
+              <th>Fecha Ingreso</th>
+            </tr>
+          </thead>
+          <tbody id="lotesTableBody">
+            <!-- Dinámico JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. AGREGAR PRODUCTO O LOTE -->
+    <section class="section" id="section-agregar">
+      <div style="max-width: 600px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <h2 style="font-family:'Outfit'; margin-bottom: 6px;">➕ Registrar Producto o Lote</h2>
+        <p style="color: var(--text3); font-size: 0.85rem; margin-bottom: 20px;">Si el grano ya existe, el sistema lo agregará como un nuevo Lote de compra.</p>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Nombre del Grano:</label>
+          <input type="text" id="newGrainName" class="pos-shadcn-input" placeholder="Ej. Quintal de Soya, Soya Molida..." />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Categoría:</label>
+            <select id="newGrainCategory" class="search-input" style="padding-left:11px;">
+              <option value="Soya">Soya</option>
+              <option value="Maíz">Maíz</option>
+              <option value="Sorgo">Sorgo</option>
+              <option value="Cascarilla">Cascarilla</option>
+              <option value="Derivados">Derivados</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Código Lote:</label>
+            <input type="text" id="newLoteCode" class="pos-shadcn-input" placeholder="Ej. LOTE-SOY-2026-02" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Costo Compra (Bs/Ql):</label>
+            <input type="number" id="newCostPrice" class="pos-shadcn-input" placeholder="110.00" step="any" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Precio Venta (Bs/Ql):</label>
+            <input type="number" id="newSalePrice" class="pos-shadcn-input" placeholder="145.00" step="any" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:18px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Stock (Quintales):</label>
+            <input type="number" id="newStockQty" class="pos-shadcn-input" placeholder="100" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Proveedor:</label>
+            <input type="text" id="newSupplier" class="pos-shadcn-input" placeholder="Silo Chiquitania" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="saveNewProductOrLote()">💾 Guardar Producto / Lote</button>
+      </div>
+    </section>
+
+    <!-- 8. GESTIÓN QR -->
+    <section class="section" id="section-qr">
+      <div class="section-header">
+        <div>
+          <h1>Gestión de Códigos QR</h1>
+          <p class="section-sub">Actualiza el código QR para pagos por transferencia</p>
+        </div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; max-width: 500px; margin: 0 auto;">
+        <h2 style="font-family:'Outfit'; margin-bottom:16px;">Sube tu Código QR</h2>
+        <div id="qrPreviewContainer" style="margin-bottom: 20px; min-height: 200px; border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg2);">
+          <img id="qrPreviewImage" src="" alt="Vista previa QR" style="max-width: 100%; max-height: 300px; display: none;" />
+          <span id="qrPlaceholderText" style="color: var(--text3);">No hay QR configurado</span>
+        </div>
+        <p style="color:var(--text2); margin-bottom: 16px; font-size: 0.9rem;">Sube una imagen de tu código QR de cobro. Esta se mostrará a los clientes o se adjuntará en los recibos cuando sea necesario.</p>
+        <input type="file" id="qrUploadInput" accept="image/*" style="display: none;" onchange="handleQRUpload(event)" />
+        <label for="qrUploadInput" class="btn btn-primary" style="display: inline-block; cursor: pointer;">📂 Seleccionar Imagen QR</label>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ MODAL FACTURA / RECIBO / IMPRESIÓN ══ -->
+  <div class="modal-overlay" id="receiptModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📄 Recibo de Venta - Granos RyR</h3>
+        <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+      </div>
+      <div class="modal-body" id="receiptModalBody">
+        <!-- Generado dinámicamente -->
+      </div>
+      <div style="padding:16px 22px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-secondary" id="btnModalPrint">🖨️ Imprimir Recibo</button>
+        <button class="btn btn-primary" id="btnModalDownloadPDF">📥 Descargar PDF</button>
+        <button class="btn btn-whatsapp" id="btnModalWhatsApp">💬 Enviar WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIÓN -->
+  <div class="toast" id="toastMessage"></div>
+
+  <!-- Scripts -->
+  <script src="js/logo-base64.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/whatsapp-helper.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

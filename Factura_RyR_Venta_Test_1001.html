@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo de Venta N° 1001 - Granos RyR Nutrición Animal</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 12mm 15mm;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: #090d16;
+            color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .word-document-letter {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 6px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid #cbd5e1;
+            box-sizing: border-box;
+        }
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .word-document-letter {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="word-document-letter" id="invoice">
+    
+    <!-- 1. ENCABEZADO MEMBRETADO CON LOGO MÁS GRANDE Y RECUADRO 'RECIBO' COMPACTO A LA DERECHA -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #b45309; padding-bottom: 18px; margin-bottom: 22px;">
+        <div style="flex: 0 0 220px; text-align: left;">
+            <img src="Granos RyR SIN FONDO.png" alt="Granos RyR Logo" style="max-height: 115px; width: auto; object-fit: contain;" />
+        </div>
+        
+        <div style="flex: 1; padding: 0 10px; text-align: center;">
+            <h1 style="margin: 0; color: #b45309; font-size: 26px; font-weight: 900; letter-spacing: 1px; font-family: 'Outfit', sans-serif;">GRANOS RyR</h1>
+            <p style="margin: 3px 0 0 0; font-size: 12px; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">COMERCIALIZADORA & NUTRICIÓN ANIMAL</p>
+            <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569;">Venta de Soya, Sorgo, Maíz, Cascarilla de Soya y Soya Molida</p>
+            <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">NIT: 10293847501 &middot; Tel/WhatsApp: +591 70000000 &middot; Santa Cruz - Bolivia</p>
+        </div>
+
+        <div style="flex: 0 0 135px; background: #f8fafc; border: 1.5px solid #b45309; border-radius: 6px; padding: 8px 6px; text-align: center; margin-left: auto;">
+            <div style="font-size: 11px; font-weight: 900; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;">RECIBO</div>
+            <div style="font-size: 16px; font-weight: 900; color: #0f172a; margin: 3px 0;">N° #1001</div>
+            <div style="font-size: 9px; color: #64748b; font-weight: 600;">ORIGINAL CLIENTE</div>
+        </div>
+    </div>
+
+    <!-- 2. DATOS DEL CLIENTE Y DOCUMENTO -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+        <div>
+            <p style="margin: 0 0 6px 0;"><strong>SEÑOR(ES):</strong> <span style="color: #0f172a;">Carlos Rodríguez</span></p>
+            <p style="margin: 0;"><strong>NIT / CI:</strong> <span style="color: #0f172a;">102938475</span></p>
+        </div>
+        <div>
+            <p style="margin: 0 0 6px 0;"><strong>FECHA Y HORA:</strong> <span style="color: #0f172a;">21/07/2026 21:55</span></p>
+            <p style="margin: 0;"><strong>FORMA DE PAGO:</strong> <span style="color: #b45309; font-weight: bold;">QR / Transferencia</span></p>
+        </div>
+    </div>
+
+    <!-- 3. TABLA FORMAL DE PRODUCTOS ESTILO WORD -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; border: 1px solid #cbd5e1;">
+        <thead>
+            <tr style="background: #0f172a; color: #ffffff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <th style="padding: 10px; text-align: center; width: 6%;">N°</th>
+                <th style="padding: 10px; text-align: left;">DESCRIPCIÓN DE GRANOS / LOTE</th>
+                <th style="padding: 10px; text-align: center; width: 15%;">CANTIDAD</th>
+                <th style="padding: 10px; text-align: right; width: 18%;">P. UNITARIO</th>
+                <th style="padding: 10px; text-align: right; width: 20%;">SUBTOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 10px 12px; text-align: center; color: #475569; font-size: 13px;">1</td>
+                <td style="padding: 10px 12px; font-size: 13px;">
+                    <strong style="color: #0f172a; display: block;">Quintal de Soya (46 kg)</strong>
+                    <span style="font-size: 11px; color: #64748b;">Lote de Origen: LOTE-SOY-202607-01 &middot; Presentación: Quintal</span>
+                </td>
+                <td style="padding: 10px 12px; text-align: center; font-size: 13px; font-weight: 600; color: #0f172a;">10</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; color: #334155;">Bs. 145.00</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; font-weight: bold; color: #0f172a;">Bs. 1,450.00</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 10px 12px; text-align: center; color: #475569; font-size: 13px;">2</td>
+                <td style="padding: 10px 12px; font-size: 13px;">
+                    <strong style="color: #0f172a; display: block;">Quintal de Maíz (46 kg)</strong>
+                    <span style="font-size: 11px; color: #64748b;">Lote de Origen: LOTE-MAIZ-202607-01 &middot; Presentación: Quintal</span>
+                </td>
+                <td style="padding: 10px 12px; text-align: center; font-size: 13px; font-weight: 600; color: #0f172a;">5</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; color: #334155;">Bs. 95.00</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; font-weight: bold; color: #0f172a;">Bs. 475.00</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 10px 12px; text-align: center; color: #475569; font-size: 13px;">3</td>
+                <td style="padding: 10px 12px; font-size: 13px;">
+                    <strong style="color: #0f172a; display: block;">Cascarilla de Soya (Saco)</strong>
+                    <span style="font-size: 11px; color: #64748b;">Lote de Origen: LOTE-CASC-202607-01 &middot; Presentación: Saco Especial</span>
+                </td>
+                <td style="padding: 10px 12px; text-align: center; font-size: 13px; font-weight: 600; color: #0f172a;">2</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; color: #334155;">Bs. 45.00</td>
+                <td style="padding: 10px 12px; text-align: right; font-size: 13px; font-weight: bold; color: #0f172a;">Bs. 90.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 4. TOTALES Y MONTO EN LETRAS -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px; gap: 20px;">
+        <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; font-size: 12px;">
+            <p style="margin: 0; color: #475569;"><strong>IMPORTE TOTAL:</strong></p>
+            <p style="margin: 4px 0 0 0; font-weight: 700; color: #0f172a;">Bs. 2015.00 (DOS MIL QUINCE 00/100 BOLIVIANOS)</p>
+        </div>
+
+        <div style="flex: 0 0 240px; background: #ffffff; border: 2px solid #0f172a; border-radius: 8px; padding: 14px; text-align: right;">
+            <div style="font-size: 12px; color: #475569; font-weight: 600;">TOTAL COBRADO</div>
+            <div style="font-size: 24px; font-weight: 900; color: #b45309; margin-top: 4px; font-family: 'Outfit', sans-serif;">Bs. 2,015.00</div>
+        </div>
+    </div>
+
+    <!-- 5. FIRMAS DE CONFORMIDAD Y PIE FORMAL -->
+    <div style="display: flex; justify-content: space-around; margin-top: 60px; padding-top: 10px; text-align: center; font-size: 12px; color: #475569;">
+        <div style="width: 220px; border-top: 1px solid #94a3b8; padding-top: 8px;">
+            <strong>ENTREGADO POR</strong><br>
+            <span>Granos RyR Nutrición Animal</span>
+        </div>
+        <div style="width: 220px; border-top: 1px solid #94a3b8; padding-top: 8px;">
+            <strong>RECIBÍ CONFORME</strong><br>
+            <span>Firma / Sello Cliente</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+        Documento emitido por el Sistema Granos RyR &middot; Recibo Oficial Tamaño Carta
+    </div>
+
+    <div class="no-print" style="margin-top: 25px; text-align: center;">
+        <button onclick="window.print()" style="padding: 12px 24px; background: #0f172a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">🖨️ Imprimir Recibo Carta (Word)</button>
+    </div>
+</div>
+
+</body>
+</html>

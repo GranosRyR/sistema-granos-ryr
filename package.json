@@ -1,0 +1,24 @@
+{
+  "name": "sistema-granos-ryr",
+  "version": "1.0.0",
+  "description": "Sistema de Inventario, POS, Lotaje y Facturación para Granos RyR",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "granos",
+    "inventario",
+    "pos",
+    "firebase",
+    "render",
+    "pdf",
+    "whatsapp"
+  ],
+  "author": "Granos RyR",
+  "license": "ISC"
+}
