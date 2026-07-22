@@ -72,21 +72,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const syncText = document.getElementById('syncText');
         const syncDot = document.getElementById('syncDot');
 
-        showToast('Sincronizando...', 'success');
+        showToast('Sincronizando con Firebase...', 'success');
         if (syncIcon) syncIcon.classList.add('spinning');
         if (syncText) syncText.textContent = 'Sincronizando...';
         if (syncDot) syncDot.className = 'sync-dot online';
 
-        setTimeout(() => {
-            if (window.FirebaseStore && window.FirebaseStore.isFirebaseActive) {
-                showToast('Datos sincronizados con Firestore', 'success');
+        if (window.FirebaseStore && window.FirebaseStore.isFirebaseActive) {
+            // Intentar bajar datos de la nube
+            const cloudData = await window.FirebaseStore.pullFromCloud();
+            if (cloudData) {
+                if (cloudData.products && cloudData.products.length) RyRState.products = cloudData.products;
+                if (cloudData.lotes && cloudData.lotes.length) RyRState.lotes = cloudData.lotes;
+                if (cloudData.sales && cloudData.sales.length) RyRState.sales = cloudData.sales;
+                persistState(false);
+                renderActiveSection();
+            }
+
+            // Subir datos locales a la nube
+            const success = await window.FirebaseStore.pushToCloud(RyRState);
+            if (success) {
+                showToast('🔥 Datos sincronizados con Firestore', 'success');
                 if (syncText) syncText.textContent = 'Sincronizado (Nube)';
             } else {
-                showToast('Modo Local - Firebase no configurado', 'warning');
-                if (syncText) syncText.textContent = 'Modo Local (Listo)';
+                showToast('⚠️ Error al sincronizar con Firebase', 'error');
+                if (syncText) syncText.textContent = 'Error de Sync';
             }
-            if (syncIcon) syncIcon.classList.remove('spinning');
-        }, 1000);
+        } else {
+            showToast('Modo Local - Firebase no conectado', 'warning');
+            if (syncText) syncText.textContent = 'Modo Local (Listo)';
+        }
+
+        if (syncIcon) syncIcon.classList.remove('spinning');
     };
 
     // 4. DATOS INICIALES (SEED DATA)
@@ -132,10 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function persistState() {
+    function persistState(syncCloud = true) {
         localStorage.setItem('ryr_products', JSON.stringify(RyRState.products));
         localStorage.setItem('ryr_lotes', JSON.stringify(RyRState.lotes));
         localStorage.setItem('ryr_sales', JSON.stringify(RyRState.sales));
+        if (syncCloud && window.FirebaseStore && window.FirebaseStore.isFirebaseActive) {
+            window.FirebaseStore.pushToCloud(RyRState);
+        }
     }
 
     // 5. NAVEGACIÓN Y TRANSICIÓN DE SECCIONES CON ANIMACIÓN

@@ -13,18 +13,20 @@ const firebaseConfig = {
     appId: "1:535873461807:web:1c1492fe76c40e9d7f30da"
 };
 
-// Variable de estado global para controlar si Firebase está activo
+// Variable de estado global para controlar si Firebase está activo y sincronizar datos
 window.FirebaseStore = {
     isFirebaseActive: false,
     db: null,
     
     init() {
-        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
+        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
             try {
-                firebase.initializeApp(firebaseConfig);
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 this.db = firebase.firestore();
                 this.isFirebaseActive = true;
-                console.log("🔥 Firebase inicializado correctamente para Granos RyR");
+                console.log("🔥 Firebase Firestore inicializado correctamente para Granos RyR");
                 this.updateStatusBadge(true);
             } catch (err) {
                 console.warn("⚠️ No se pudo conectar a Firebase, usando almacenamiento local:", err);
@@ -37,18 +39,52 @@ window.FirebaseStore = {
     },
     
     updateStatusBadge(active) {
-        const badge = document.getElementById('firebaseStatusBadge');
+        const badge = document.getElementById('syncText');
+        const dot = document.getElementById('syncDot');
         if (badge) {
-            if (active) {
-                badge.innerHTML = `<span class="status-dot"></span> Firebase Conectado`;
-                badge.style.background = 'rgba(16, 185, 129, 0.15)';
-                badge.style.color = '#10b981';
-            } else {
-                badge.innerHTML = `<span class="status-dot" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b"></span> Modo Local (Listo para Firebase)`;
-                badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                badge.style.color = '#f59e0b';
-            }
+            badge.textContent = active ? 'Sincronizado (Nube)' : 'Modo Local (Listo)';
         }
+        if (dot) {
+            dot.className = active ? 'sync-dot online' : 'sync-dot';
+        }
+    },
+
+    /**
+     * Sube todos los datos locales (productos, lotes, ventas) a la colección en Firestore
+     */
+    async pushToCloud(state) {
+        if (!this.isFirebaseActive || !this.db) return false;
+        try {
+            await this.db.collection('empresa_ryr').doc('inventario_ventas').set({
+                products: state.products || [],
+                lotes: state.lotes || [],
+                sales: state.sales || [],
+                lastUpdated: new Date().toISOString()
+            }, { merge: true });
+            console.log("☁️ Datos sincronizados con Firestore exitosamente.");
+            return true;
+        } catch (err) {
+            console.error("❌ Error al guardar en Firestore:", err);
+            return false;
+        }
+    },
+
+    /**
+     * Descarga y sincroniza los datos desde Firestore a la aplicación local
+     */
+    async pullFromCloud() {
+        if (!this.isFirebaseActive || !this.db) return null;
+        try {
+            const doc = await this.db.collection('empresa_ryr').doc('inventario_ventas').get();
+            if (doc.exists) {
+                const data = doc.data();
+                console.log("☁️ Datos descargados desde Firestore:", data);
+                return data;
+            }
+        } catch (err) {
+            console.error("❌ Error al leer de Firestore:", err);
+        }
+        return null;
     }
 };
 
