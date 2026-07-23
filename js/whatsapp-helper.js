@@ -37,6 +37,14 @@ window.WhatsAppHelper = {
         });
         
         message += `\n💵 *TOTAL A PAGAR:* Bs. ${parseFloat(saleData.totalAmount).toFixed(2)}\n`;
+
+        if (saleData.carPlaca || saleData.driverName || saleData.carModel) {
+            message += `\n🚛 *DATOS DE TRANSPORTE Y DESPACHO*\n`;
+            if (saleData.carPlaca) message += `Placa: ${saleData.carPlaca} | `;
+            if (saleData.carModel) message += `Modelo: ${saleData.carModel}\n`;
+            if (saleData.driverName) message += `Conductor: ${saleData.driverName}\n`;
+        }
+
         message += `===========================\n`;
         message += `✨ ¡Gracias por confiar en Granos RyR! Guarda este mensaje como constancia de tu compra.\n`;
         

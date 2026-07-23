@@ -13,27 +13,33 @@
 
 /* ── TEMA CLARO ── */
 :root {
-  --bg: #f4f4f5;
+  /* Design Tokens: Agricultural Theme */
+  --bg: #FAFAF9;      /* Off-White Canvas */
   --bg2: #ffffff;
-  --bg3: #ebebec;
+  --bg3: #f5f5f4;
   --surface: #ffffff;
   --surface2: #f7f7f8;
-  --border: #e4e4e7;
-  --border2: #d1d1d6;
-  --text: #09090b;
-  --text2: #52525b;
-  --text3: #a1a1aa;
-  --accent: #09090b;
-  --accent-rgb: 9, 9, 11;
-  --green: #16a34a;
-  --green-bg: rgba(22, 163, 74, .1);
-  --green-border: rgba(22, 163, 74, .2);
-  --red: #dc2626;
-  --red-bg: rgba(220, 38, 38, .08);
-  --red-border: rgba(220, 38, 38, .2);
-  --orange: #ea580c;
-  --orange-bg: rgba(234, 88, 12, .08);
-  --orange-border: rgba(234, 88, 12, .2);
+  --border: #e7e5e4;
+  --border2: #d6d3d1;
+  --text: #1C1917;    /* Deep Soil */
+  --text2: #57534e;
+  --text3: #a8a29e;
+  
+  --accent: #D97706;  /* Amber Grain */
+  --accent-rgb: 217, 119, 6;
+  
+  --green: #047857;   /* Agro Green */
+  --green-bg: rgba(4, 120, 87, .1);
+  --green-border: rgba(4, 120, 87, .2);
+  
+  --red: #B91C1C;     /* Alert Red */
+  --red-bg: rgba(185, 28, 28, .08);
+  --red-border: rgba(185, 28, 28, .2);
+  
+  --orange: #D97706;
+  --orange-bg: rgba(217, 119, 6, .08);
+  --orange-border: rgba(217, 119, 6, .2);
+  
   --yellow: #ca8a04;
   --yellow-bg: rgba(202, 138, 4, .08);
   --blue: #2563eb;
@@ -49,9 +55,9 @@
   --chart4: #16a34a;
   --chart5: #dc2626;
   
-  --sidebar-bg: #09090b;
-  --sidebar-text: #f4f4f5;
-  --sidebar-muted: rgba(244, 244, 245, .45);
+  --sidebar-bg: #1C1917; /* Deep Soil Sidebar */
+  --sidebar-text: #FAFAF9;
+  --sidebar-muted: rgba(250, 250, 249, .45);
   --sidebar-w: 248px;
   --topbar-h: 58px;
   --dock-h: 56px;
@@ -422,10 +428,10 @@ body {
    SECTIONS & STATS GRID
    ========================================================================== */
 .section { display: none; }
-.section.active { display: block; animation: secIn .3s var(--trans-slow) forwards; }
-.section.exiting { animation: secOut .25s ease forwards; display: block; }
-@keyframes secIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes secOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-10px); } }
+.section.active { display: block; animation: secIn .28s cubic-bezier(.4, 0, .2, 1) both; }
+.section.exiting { animation: secOut .18s ease both; display: block; }
+@keyframes secIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes secOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-6px); } }
 
 .section-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
 .section-header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--text); }
@@ -463,71 +469,76 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px 16px;
+  padding: 14px 16px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
+  text-align: left;
   gap: 12px;
   transition: transform var(--trans), box-shadow var(--trans), border-color var(--trans);
   animation: cardIn .4s ease both;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.07);
   border-color: var(--border2);
 }
 
 .stat-card:hover .stat-icon-wrap {
-  transform: scale(1.15) rotate(-5deg);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
 .stat-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   background: var(--bg3);
+  flex-shrink: 0;
   transition: transform var(--trans), box-shadow var(--trans);
 }
 
 .stat-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  align-items: flex-start;
+  gap: 2px;
   min-width: 0;
 }
 
 @keyframes bump {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: var(--blue); }
+  50% { transform: scale(1.15); color: var(--blue); }
   100% { transform: scale(1); }
 }
 .stat-value {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.55rem;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
   font-weight: 900;
   color: var(--text);
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 .stat-value.bump { animation: bump 0.4s ease; }
-.stat-label { font-size: .72rem; color: var(--text3); font-weight: 500; letter-spacing: 0.02em; }
+.stat-label { font-size: .68rem; color: var(--text3); font-weight: 500; letter-spacing: 0.02em; line-height: 1.2; }
 
 /* TOOLBAR & TABLES */
 .toolbar { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
@@ -964,4 +975,110 @@ body {
     background: #ffffff !important;
     color: #000000 !important;
   }
+}
+
+/* Frontend Design Signature removed completely */
+
+/* =======================================================
+   📱 OPTIMIZACIÓN EXTREMA PARA MÓVILES (Max 768px)
+   ======================================================= */
+@media screen and (max-width: 768px) {
+    
+    /* 1. APILAR COLUMNAS DEL POS (De horizontal a vertical) */
+    #section-pos > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    /* 2. ZONAS TÁCTILES MÁS GRANDES (Ley de Fitts) */
+    /* Los dedos son gruesos; los inputs y botones deben tener al menos 44px de alto */
+    .pos-shadcn-input, .search-input, .btn {
+        min-height: 48px;
+        font-size: 16px !important; /* Evita que el iPhone haga zoom automático al teclear */
+    }
+
+    /* 3. TABLA DEL CARRITO SCROLLABLE */
+    /* Evita que los nombres largos de productos rompan el ancho de la pantalla */
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        border: 1px solid var(--border);
+    }
+    
+    .inv-table th, .inv-table td {
+        padding: 10px 8px; /* Menos padding lateral para que quepa más info */
+        font-size: 0.85rem;
+        white-space: nowrap; /* Evita que el texto se rompa en dos líneas feamente */
+    }
+
+    /* 4. TOTAL Y BOTONES FIJOS ABJO (Sticky Bottom) */
+    /* Mantener el botón de "Cobrar" siempre a la vista sin tener que hacer scroll hasta el final */
+    .pos-actions-container {
+        position: sticky;
+        bottom: 0;
+        background: var(--surface);
+        padding: 15px 0;
+        border-top: 1px solid var(--border);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .pos-actions-container .btn {
+        width: 100%; /* Botones de WhatsApp y Guardar ocupan todo el ancho */
+    }
+}
+
+/* =======================================================
+   📱 OPTIMIZACIÓN EXTREMA DEL MODAL PARA MÓVILES (Max 768px)
+   ======================================================= */
+@media screen and (max-width: 768px) {
+    
+    /* 1. EL CONTENEDOR DEL MODAL: Ocupa casi todo el ancho y no se sale de pantalla */
+    .modal {
+        width: 95% !important;
+        max-width: none !important; /* Sobrescribe el límite de PC */
+        max-height: 90vh; /* Máximo 90% del alto de la pantalla */
+        margin: 5vh auto;
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px; /* Bordes más suaves en móvil */
+    }
+
+    /* 2. EL RECIBO (Cuerpo): Scroll suave y anti-desbordamiento */
+    .modal-body {
+        overflow-y: auto; /* Si el recibo es muy largo, se hace scroll interno */
+        -webkit-overflow-scrolling: touch; /* Scroll fluido como app nativa en iOS */
+        padding: 15px !important;
+    }
+
+    /* 3. LA TABLA DEL RECIBO: Escala proporcional */
+    #receiptModalBody table {
+        width: 100% !important;
+        font-size: 0.8rem; /* Reducimos la letra ligeramente para que quepan cantidad y subtotales */
+        table-layout: fixed; /* Fuerza a que las columnas no rompan la pantalla */
+    }
+    
+    #receiptModalBody td, #receiptModalBody th {
+        word-wrap: break-word; /* Si el grano tiene un nombre larguísimo, baja a la siguiente línea */
+    }
+
+    /* 4. ZONA DE BOTONES (Footer): Apilados y a prueba de errores */
+    /* Apuntamos al contenedor de botones inferior del modal */
+    .modal div[style*="justify-content:flex-end"] {
+        flex-direction: column !important; /* Los apila uno debajo de otro */
+        gap: 12px !important; /* Espacio de seguridad entre botones */
+        padding: 16px !important;
+    }
+
+    /* 5. BOTONES GIGANTES Y CÓMODOS */
+    .modal div[style*="justify-content:flex-end"] .btn {
+        width: 100%; /* Botones de lado a lado de la pantalla */
+        min-height: 48px; /* Altura mínima táctil recomendada por Apple/Google */
+        font-size: 1rem;
+        justify-content: center; /* Centra el texto y el ícono */
+    }
 }

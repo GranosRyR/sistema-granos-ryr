@@ -4,14 +4,7 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Estado Principal
-    window.RyRState = {
-        products: [],
-        lotes: [],
-        sales: [],
-        currentCart: [],
-        activeSection: 'dashboard'
-    };
+    // Estado Principal migrado a store.js
 
     // Chart.js global instances
     let salesTrendChart = null;
@@ -114,58 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (syncIcon) syncIcon.classList.remove('spinning');
     };
 
-    // 4. DATOS INICIALES (SEED DATA)
-    function seedInitialData() {
-        const savedProducts = localStorage.getItem('ryr_products');
-        const savedLotes = localStorage.getItem('ryr_lotes');
-        const savedSales = localStorage.getItem('ryr_sales');
-
-        if (!savedProducts) {
-            const initialProducts = [
-                { id: 'p1', name: 'Quintal de Soya', category: 'Soya', defaultUnit: 'Quintal (46 kg)', totalStock: 120 },
-                { id: 'p2', name: 'Quintal de Maíz', category: 'Maíz', defaultUnit: 'Quintal (46 kg)', totalStock: 250 },
-                { id: 'p3', name: 'Quintal de Sorgo', category: 'Sorgo', defaultUnit: 'Quintal (46 kg)', totalStock: 180 },
-                { id: 'p4', name: 'Cascarilla de Soya', category: 'Cascarilla', defaultUnit: 'Quintal / Saco', totalStock: 95 },
-                { id: 'p5', name: 'Soya Molida', category: 'Derivados', defaultUnit: 'Quintal / Saco', totalStock: 80 },
-                { id: 'p6', name: 'Medio Quintal de Soya', category: 'Soya', defaultUnit: 'Medio Quintal (23 kg)', totalStock: 60 }
-            ];
-            localStorage.setItem('ryr_products', JSON.stringify(initialProducts));
-            RyRState.products = initialProducts;
-        } else {
-            RyRState.products = JSON.parse(savedProducts);
-        }
-
-        if (!savedLotes) {
-            const initialLotes = [
-                { id: 'l1', productId: 'p1', code: 'LOTE-SOY-202607-01', costPrice: 110, salePrice: 145, stock: 70, entryDate: '2026-07-01', supplier: 'Agrícola Este' },
-                { id: 'l2', productId: 'p1', code: 'LOTE-SOY-202607-02', costPrice: 115, salePrice: 150, stock: 50, entryDate: '2026-07-15', supplier: 'Silo Chiquitania' },
-                { id: 'l3', productId: 'p2', code: 'LOTE-MAIZ-202607-01', costPrice: 70, salePrice: 95, stock: 250, entryDate: '2026-07-10', supplier: 'Granos del Sur' },
-                { id: 'l4', productId: 'p3', code: 'LOTE-SORGO-202607-01', costPrice: 65, salePrice: 88, stock: 180, entryDate: '2026-07-12', supplier: 'Productoras Unidas' },
-                { id: 'l5', productId: 'p4', code: 'LOTE-CASC-202607-01', costPrice: 30, salePrice: 45, stock: 95, entryDate: '2026-07-14', supplier: 'Molienda RyR' },
-                { id: 'l6', productId: 'p5', code: 'LOTE-SMOL-202607-01', costPrice: 50, salePrice: 72, stock: 80, entryDate: '2026-07-14', supplier: 'Molienda RyR' }
-            ];
-            localStorage.setItem('ryr_lotes', JSON.stringify(initialLotes));
-            RyRState.lotes = initialLotes;
-        } else {
-            RyRState.lotes = JSON.parse(savedLotes);
-        }
-
-        if (!savedSales) {
-            RyRState.sales = [];
-        } else {
-            RyRState.sales = JSON.parse(savedSales);
-        }
-    }
-
-    function persistState(syncCloud = true) {
-        localStorage.setItem('ryr_products', JSON.stringify(RyRState.products));
-        localStorage.setItem('ryr_lotes', JSON.stringify(RyRState.lotes));
-        localStorage.setItem('ryr_sales', JSON.stringify(RyRState.sales));
-        if (syncCloud && window.FirebaseStore && window.FirebaseStore.isFirebaseActive) {
-            window.FirebaseStore.pushToCloud(RyRState);
-        }
-    }
-
+    // seedInitialData y persistState migrados a store.js
     // 5. NAVEGACIÓN Y TRANSICIÓN DE SECCIONES CON ANIMACIÓN
     function setupNavigation() {
         const navItems = document.querySelectorAll('.nav-item');
@@ -189,34 +131,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (RyRState.activeSection === sectionName) return;
 
         const currentActive = document.getElementById(`section-${RyRState.activeSection}`);
-        if (currentActive) {
-            currentActive.classList.add('exiting');
-            setTimeout(() => {
-                currentActive.classList.remove('active', 'exiting');
-                currentActive.style.display = 'none';
-            }, 180);
-        }
-
         RyRState.activeSection = sectionName;
 
-        setTimeout(() => {
+        // Función que activa la sección nueva (se ejecuta DESPUÉS de ocultar la anterior)
+        function activateNewSection() {
             const target = document.getElementById(`section-${sectionName}`);
             if (target) {
                 target.style.display = 'block';
+                void target.offsetWidth; // Forzar reflow para garantizar que la animación CSS se dispare
                 target.classList.add('active');
             }
 
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(i => {
-                if (i.getAttribute('data-section') === sectionName) {
-                    i.classList.add('active');
-                } else {
-                    i.classList.remove('active');
-                }
+                i.classList.toggle('active', i.getAttribute('data-section') === sectionName);
             });
 
             renderActiveSection();
-        }, 180);
+        }
+
+        if (currentActive) {
+            currentActive.classList.add('exiting');
+            setTimeout(() => {
+                currentActive.classList.remove('active', 'exiting');
+                currentActive.style.display = 'none';
+                // Solo después de ocultar la sección vieja, mostramos la nueva
+                activateNewSection();
+            }, 180);
+        } else {
+            activateNewSection();
+        }
     };
 
     window.toggleSidebar = function() {
@@ -260,6 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderLotes();
                 break;
             case 'agregar':
+                populateProductDatalist();
+                break;
             case 'qr':
                 break;
         }
@@ -740,234 +686,49 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 7. POS Y CARRITO
-    function renderPOS() {
-        const pSelect = document.getElementById('posProductSelect');
-        if (!pSelect) return;
-
-        pSelect.innerHTML = `<option value="">-- Seleccionar --</option>` + RyRState.products.map(p => `
-            <option value="${p.id}">${p.name} (${p.category})</option>
-        `).join('');
-
-        renderPOSCart();
-    }
-
-    window.onPOSProductChange = function() {
-        const pId = document.getElementById('posProductSelect').value;
-        const loteSelect = document.getElementById('posLoteSelect');
-        const unitPriceInput = document.getElementById('posUnitPrice');
-
-        if (!pId) {
-            loteSelect.innerHTML = `<option value="">-- Seleccionar Lote --</option>`;
-            unitPriceInput.value = '';
-            return;
-        }
-
-        const lotes = RyRState.lotes.filter(l => l.productId === pId && l.stock > 0);
-        if (lotes.length === 0) {
-            loteSelect.innerHTML = `<option value="">-- Sin Stock Disponible --</option>`;
-            unitPriceInput.value = '';
-            return;
-        }
-
-        loteSelect.innerHTML = lotes.map(l => `
-            <option value="${l.id}">${l.code} - Stock: ${l.stock} Ql. (Precio: Bs. ${l.salePrice})</option>
-        `).join('');
-
-        unitPriceInput.value = lotes[0].salePrice;
-    };
-
-    window.onPOSLoteChange = function() {
-        const loteId = document.getElementById('posLoteSelect').value;
-        const lote = RyRState.lotes.find(l => l.id === loteId);
-        if (lote) {
-            document.getElementById('posUnitPrice').value = lote.salePrice;
-        }
-    };
-
-    window.addPosItem = function() {
-        const pId = document.getElementById('posProductSelect').value;
-        const loteId = document.getElementById('posLoteSelect').value;
-        const unitType = document.getElementById('posUnitType').value;
-        const qty = parseFloat(document.getElementById('posQuantity').value);
-        const unitPrice = parseFloat(document.getElementById('posUnitPrice').value);
-
-        if (!pId || !loteId || isNaN(qty) || qty <= 0 || isNaN(unitPrice)) {
-            showToast('⚠️ Complete los campos requeridos.', 'warning');
-            return;
-        }
-
-        const product = RyRState.products.find(p => p.id === pId);
-        const lote = RyRState.lotes.find(l => l.id === loteId);
-
-        if (qty > lote.stock) {
-            showToast(`⚠️ Stock insuficiente. Disponibles: ${lote.stock} Ql.`, 'error');
-            return;
-        }
-
-        RyRState.currentCart.push({
-            productId: pId,
-            productName: product.name,
-            loteId: lote.id,
-            loteCode: lote.code,
-            unitType: unitType,
-            quantity: qty,
-            unitPrice: unitPrice,
-            costPrice: lote.costPrice,
-            subtotal: qty * unitPrice
-        });
-
-        showToast(`✔ ${product.name} agregado`, 'success');
-        renderPOSCart();
-    };
-
-    function renderPOSCart() {
-        const body = document.getElementById('posCartTableBody');
-        const totalEl = document.getElementById('posCartTotalAmount');
-        if (!body) return;
-
-        if (RyRState.currentCart.length === 0) {
-            body.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text3); padding: 12px;">Carrito vacío</td></tr>`;
-            if (totalEl) totalEl.textContent = 'Bs. 0.00';
-            return;
-        }
-
-        let total = 0;
-        body.innerHTML = RyRState.currentCart.map((item, index) => {
-            total += item.subtotal;
-            return `
-                <tr class="inventory-row">
-                    <td><strong>${item.productName}</strong></td>
-                    <td><span class="badge badge-gold">${item.loteCode}</span></td>
-                    <td>${item.quantity} ${item.unitType.split(' ')[0]}</td>
-                    <td><strong>Bs. ${item.subtotal.toFixed(2)}</strong></td>
-                    <td>
-                        <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.75rem;" onclick="removePosItem(${index})">❌</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        if (totalEl) totalEl.textContent = `Bs. ${total.toFixed(2)}`;
-    }
-
-    window.removePosItem = function(index) {
-        RyRState.currentCart.splice(index, 1);
-        renderPOSCart();
-    };
-
-    window.processSale = function(sendWhatsApp = false) {
-        if (RyRState.currentCart.length === 0) {
-            showToast('⚠️ Agregue productos antes de cobrar.', 'warning');
-            return;
-        }
-
-        const customerName = document.getElementById('posCustomerName').value.trim() || 'Cliente General';
-        const customerNit = document.getElementById('posCustomerNit').value.trim() || 'S/N';
-        const customerPhone = document.getElementById('posCustomerPhone').value.trim();
-        const paymentMethod = document.getElementById('posPaymentMethod').value;
-
-        if (sendWhatsApp && !customerPhone) {
-            showToast('⚠️ Ingrese el número de WhatsApp del cliente.', 'warning');
-            return;
-        }
-
-        const totalAmount = RyRState.currentCart.reduce((sum, i) => sum + i.subtotal, 0);
-        const totalCost = RyRState.currentCart.reduce((sum, i) => sum + (i.costPrice * i.quantity), 0);
-        const netProfit = totalAmount - totalCost;
-
-        const saleId = (1000 + RyRState.sales.length + 1).toString();
-        const saleData = {
-            saleId: saleId,
-            customerName: customerName,
-            customerNit: customerNit,
-            customerPhone: customerPhone,
-            paymentMethod: paymentMethod,
-            items: [...RyRState.currentCart],
-            totalAmount: totalAmount,
-            totalCost: totalCost,
-            netProfit: netProfit,
-            timestamp: new Date().toISOString()
-        };
-
-        // Descontar Stock
-        RyRState.currentCart.forEach(cartItem => {
-            const lote = RyRState.lotes.find(l => l.id === cartItem.loteId);
-            if (lote) {
-                lote.stock -= cartItem.quantity;
-            }
-        });
-
-        RyRState.sales.push(saleData);
-        persistState();
-
-        showToast(`🎉 Venta #${saleId} registrada con éxito`, 'success');
-        showReceiptModal(saleData, sendWhatsApp);
-
-        RyRState.currentCart = [];
-        document.getElementById('posCustomerName').value = '';
-        document.getElementById('posCustomerNit').value = '';
-        document.getElementById('posCustomerPhone').value = '';
-        document.getElementById('posProductSelect').value = '';
-        document.getElementById('posLoteSelect').innerHTML = '<option value="">-- Seleccionar Lote --</option>';
-        document.getElementById('posQuantity').value = '1';
-        document.getElementById('posUnitPrice').value = '';
-        document.getElementById('posPaymentMethod').value = 'Efectivo';
-        renderPOSCart();
-
-        // Update dashboard charts if visible
-        if (RyRState.activeSection === 'dashboard') {
-            renderDashboard();
-        }
-    };
-
-    function showReceiptModal(saleData, triggerWhatsApp = false) {
-        const modal = document.getElementById('receiptModal');
-        const body = document.getElementById('receiptModalBody');
-        if (!modal || !body) return;
-
-        body.innerHTML = window.PDFGenerator.generateReceiptHTML(saleData);
-        modal.style.display = 'flex';
-
-        document.getElementById('btnModalPrint').onclick = () => window.PDFGenerator.printReceipt();
-        document.getElementById('btnModalDownloadPDF').onclick = () => window.PDFGenerator.downloadPDF(saleData);
-        document.getElementById('btnModalWhatsApp').onclick = () => {
-            window.WhatsAppHelper.sendInvoiceToWhatsApp(saleData.customerPhone, saleData);
-        };
-
-        if (triggerWhatsApp && saleData.customerPhone) {
-            setTimeout(() => {
-                window.WhatsAppHelper.sendInvoiceToWhatsApp(saleData.customerPhone, saleData);
-            }, 400);
-        }
-    }
-
-    window.closeReceiptModal = function() {
-        const modal = document.getElementById('receiptModal');
-        if (modal) modal.style.display = 'none';
-    };
+    // Lógica migrada a pos_controller.js
 
     function renderHistorial() {
         const body = document.getElementById('historyTableBody');
         if (!body) return;
 
         if (RyRState.sales.length === 0) {
-            body.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text3); padding:16px;">Sin ventas registradas</td></tr>`;
+            body.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text3); padding:24px;">Sin ventas registradas</td></tr>`;
             return;
         }
 
         body.innerHTML = [...RyRState.sales].reverse().map(s => {
-            const dateStr = new Date(s.timestamp).toLocaleString('es-BO');
+            const dateObj = new Date(s.timestamp);
+            const dateStr = dateObj.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
             const isoDate = s.timestamp.split('T')[0];
+            
+            const paymentBadge = (s.paymentMethod || '').toLowerCase() === 'efectivo' ? 'badge-ok' : 'badge-gold';
+
             return `
                 <tr class="inventory-row" data-date="${isoDate}">
-                    <td><strong>#${s.saleId}</strong></td>
-                    <td>${dateStr}</td>
-                    <td>${s.customerName}</td>
-                    <td>${s.customerPhone || 'S/N'}</td>
-                    <td><span class="badge badge-ok">${s.paymentMethod}</span></td>
-                    <td><strong style="color:var(--green);">Bs. ${s.totalAmount.toFixed(2)}</strong></td>
+                    <td><strong style="color:var(--text1);">#${s.saleId}</strong></td>
                     <td>
-                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="reprintSale('${s.saleId}')">📄 Recibo</button>
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <span style="font-weight:600; color:var(--text1);">${dateStr}</span>
+                            <span style="font-size:0.75rem; color:var(--text3);">${timeStr}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:32px; height:32px; border-radius:50%; background:var(--orange-bg); display:flex; align-items:center; justify-content:center; color:var(--orange); font-weight:bold;">
+                                ${(s.customerName || 'C').charAt(0).toUpperCase()}
+                            </div>
+                            <span style="font-weight:500;">${s.customerName}</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--text2);">${s.customerPhone || '<span style="color:var(--text4);">N/A</span>'}</td>
+                    <td><span class="badge ${paymentBadge}">${s.paymentMethod}</span></td>
+                    <td><strong style="color:var(--green); font-size:1.05rem;">Bs. ${s.totalAmount.toFixed(2)}</strong></td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem; display:flex; align-items:center; gap:6px;" onclick="reprintSale('${s.saleId}')">
+                            <span style="font-size:1rem;">📄</span> Ver
+                        </button>
                     </td>
                 </tr>
             `;
@@ -1068,6 +829,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
+    function populateProductDatalist() {
+        const datalist = document.getElementById('existingProductsList');
+        if (!datalist) return;
+        
+        // Clear existing
+        datalist.innerHTML = '';
+        
+        // Populate with current products
+        RyRState.products.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.name;
+            datalist.appendChild(option);
+        });
+    }
+
     window.saveNewProductOrLote = function() {
         const grainName = document.getElementById('newGrainName').value.trim();
         const category = document.getElementById('newGrainCategory').value;
@@ -1075,6 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const salePrice = parseFloat(document.getElementById('newSalePrice').value);
         const stockQty = parseFloat(document.getElementById('newStockQty').value);
         const supplier = document.getElementById('newSupplier').value.trim() || 'Proveedor General';
+        const manualLoteCode = document.getElementById('newLoteCode').value.trim();
 
         // Enhanced validation
         if (!grainName) {
@@ -1103,12 +880,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // 3. Duplicate Lot Code Validation
+        if (manualLoteCode) {
+            const isDuplicate = RyRState.lotes.some(l => l.code.toLowerCase() === manualLoteCode.toLowerCase());
+            if (isDuplicate) {
+                showToast(`⚠️ El Código de Lote "${manualLoteCode}" ya existe. Use uno diferente.`, 'error');
+                document.getElementById('newLoteCode').focus();
+                return;
+            }
+        }
+
         let existingProduct = RyRState.products.find(p => p.name.toLowerCase() === grainName.toLowerCase());
 
         if (!existingProduct) {
             existingProduct = {
                 id: 'p_' + Date.now(),
-                name: grainName,
+                name: grainName, // Keep original casing inputted by user
                 category: category,
                 defaultUnit: 'Quintal (46 kg)',
                 totalStock: 0
@@ -1118,7 +905,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const existingLotes = RyRState.lotes.filter(l => l.productId === existingProduct.id);
         const nextLoteNum = existingLotes.length + 1;
-        const loteCode = document.getElementById('newLoteCode').value.trim() || `Lote ${nextLoteNum}`;
+        
+        // 2. Intelligent Auto-Generation of Lot Code
+        let loteCode = manualLoteCode;
+        if (!loteCode) {
+            const datePart = new Date().toISOString().split('T')[0].replace(/-/g, '').substring(2); // e.g. 260722
+            const catPart = category.substring(0, 3).toUpperCase();
+            loteCode = `${catPart}-${datePart}-${nextLoteNum.toString().padStart(2, '0')}`;
+        }
 
         const newLote = {
             id: 'l_' + Date.now(),
@@ -1233,13 +1027,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ─── CUADRO 2: VENTAS ───
         const salesTitleRowIdx = ws_data.length;
-        ws_data.push(['🛒 2. REGISTRO DETALLADO DE VENTAS', '', '', '', '', '', '', '', '']);
-        merges.push({ s: { r: salesTitleRowIdx, c: 0 }, e: { r: salesTitleRowIdx, c: 8 } });
+        ws_data.push(['🛒 2. REGISTRO DETALLADO DE VENTAS', '', '', '', '', '', '', '', '', '', '', '']);
+        merges.push({ s: { r: salesTitleRowIdx, c: 0 }, e: { r: salesTitleRowIdx, c: 11 } });
 
         // Headers ventas
         ws_data.push([
             'N° Comprobante', 'Fecha / Hora', 'Nombre Cliente', 'NIT / CI',
             'Teléfono / WhatsApp', 'Detalle de Productos', 'Método de Pago',
+            'Placa Vehículo', 'Modelo Auto', 'Nombre Conductor',
             'Monto Total (Bs.)', 'Estado Venta'
         ]);
 
@@ -1262,13 +1057,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 s.customerPhone || 'S/N',
                 detalle,
                 s.paymentMethod || 'Efectivo',
+                s.carPlaca || '---',
+                s.carModel || '---',
+                s.driverName || '---',
                 Math.round(s.totalAmount * 100) / 100,
                 'Completado'
             ]);
         });
 
         // Fila de totales ventas
-        ws_data.push(['', '', 'TOTAL INGRESOS POR VENTAS', '', '', '', '', Math.round(totalIngresos * 100) / 100, '']);
+        ws_data.push(['', '', 'TOTAL INGRESOS POR VENTAS', '', '', '', '', '', '', '', Math.round(totalIngresos * 100) / 100, '']);
 
         // ─── CREAR WORKBOOK ───
         var ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -1278,15 +1076,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Anchos de columna
         ws['!cols'] = [
-            { wch: 14 },  // A: ID Producto
-            { wch: 26 },  // B: Producto / Nombre
-            { wch: 14 },  // C: Categoría
-            { wch: 14 },  // D: Stock / NIT
-            { wch: 22 },  // E: Costo / Teléfono
-            { wch: 22 },  // F: Venta / Detalle
-            { wch: 22 },  // G: Ganancia / Método
-            { wch: 18 },  // H: Margen / Monto
-            { wch: 14 }   // I: Estado
+            { wch: 14 },  // A
+            { wch: 26 },  // B
+            { wch: 14 },  // C
+            { wch: 14 },  // D
+            { wch: 22 },  // E
+            { wch: 22 },  // F
+            { wch: 22 },  // G
+            { wch: 18 },  // H: Margen / Placa
+            { wch: 18 },  // I: Estado / Modelo
+            { wch: 18 },  // J: Conductor
+            { wch: 18 },  // K: Total
+            { wch: 14 }   // L: Estado Venta
         ];
 
         var wb = XLSX.utils.book_new();

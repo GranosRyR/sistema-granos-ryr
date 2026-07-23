@@ -35,7 +35,7 @@
     <!-- Brand Badge -->
     <div class="dock-brand" title="Granos RyR">
       <div class="dock-brand-logo-wrap">
-        <img src="Granos%20RyR%20SIN%20FONDO.png" alt="Granos RyR" class="dock-brand-logo" />
+        <img src="SOLO%20LOGO%20RYR.png" alt="Granos RyR" class="dock-brand-logo" />
       </div>
       <span class="dock-brand-text">GRANOS RyR</span>
     </div>
@@ -137,7 +137,9 @@
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon-wrap">🌾</div>
+          <div class="stat-icon-wrap">
+            <img src="ICONOS/stat-productos.png" alt="Productos" style="width: 24px; height: 24px; object-fit: contain;">
+          </div>
           <div class="stat-info">
             <span class="stat-value value-animated" id="stat-total-productos">0</span>
             <span class="stat-label">Total Productos</span>
@@ -145,7 +147,9 @@
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon-wrap">📦</div>
+          <div class="stat-icon-wrap">
+            <img src="ICONOS/stat-stock.png" alt="Stock" style="width: 24px; height: 24px; object-fit: contain;">
+          </div>
           <div class="stat-info">
             <span class="stat-value value-animated" id="stat-total-stock">0 Ql.</span>
             <span class="stat-label">Stock en Quintales</span>
@@ -153,7 +157,9 @@
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon-wrap">⚠️</div>
+          <div class="stat-icon-wrap">
+            <img src="ICONOS/stat-alerta.png" alt="Alerta" style="width: 24px; height: 24px; object-fit: contain;">
+          </div>
           <div class="stat-info">
             <span class="stat-value value-animated" id="stat-lotes-bajo">0</span>
             <span class="stat-label">Lotes con Stock Bajo</span>
@@ -161,7 +167,9 @@
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon-wrap">💰</div>
+          <div class="stat-icon-wrap">
+            <img src="ICONOS/stat-ventas.png" alt="Ventas" style="width: 24px; height: 24px; object-fit: contain;">
+          </div>
           <div class="stat-info">
             <span class="stat-value value-animated" id="stat-ventas-hoy">Bs. 0.00</span>
             <span class="stat-label">Ventas de Hoy</span>
@@ -169,7 +177,9 @@
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon-wrap">📈</div>
+          <div class="stat-icon-wrap">
+            <img src="ICONOS/stat-ganancia.png" alt="Ganancia" style="width: 24px; height: 24px; object-fit: contain;">
+          </div>
           <div class="stat-info">
             <span class="stat-value value-animated" id="stat-ganancia-hoy">Bs. 0.00</span>
             <span class="stat-label">Ganancia Neta (Hoy)</span>
@@ -333,6 +343,17 @@
             </select>
           </div>
 
+          <!-- DATOS DE TRANSPORTE (OPCIONAL) -->
+          <h3 class="section-title" style="margin-top:20px; font-size: 1rem;">🚛 Datos de Despacho / Transporte (Opcional)</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; margin-top: 10px;">
+            <input type="text" id="posCarPlaca" class="pos-shadcn-input" placeholder="Placa (Ej. 3492-ABC)" />
+            <input type="text" id="posCarModel" class="pos-shadcn-input" placeholder="Modelo/Tipo (Ej. Camión Nissan)" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
+            <input type="text" id="posDriverName" class="pos-shadcn-input" placeholder="Nombre Conductor (Ej. Juan Pérez)" style="width: 100%;" />
+            <input type="text" id="posDriverCi" class="pos-shadcn-input" placeholder="CI Conductor" style="width: 100%;" />
+          </div>
+
           <div class="table-wrap" style="max-height: 180px; overflow-y: auto; margin-bottom: 16px;">
             <table class="inv-table">
               <thead>
@@ -350,14 +371,16 @@
             </table>
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:10px; background:var(--bg3); border-radius:var(--radius-sm);">
-            <span style="font-weight:600; color:var(--text2);">Total a Cobrar:</span>
-            <span style="font-family:'Space Grotesk'; font-size:1.6rem; font-weight:900; color:var(--green);" id="posCartTotalAmount">Bs. 0.00</span>
-          </div>
+          <div class="pos-actions-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:10px; background:var(--bg3); border-radius:var(--radius-sm);">
+              <span style="font-weight:600; color:var(--text2);">Total a Cobrar:</span>
+              <span style="font-family:'Space Grotesk'; font-size:1.6rem; font-weight:900; color:var(--green);" id="posCartTotalAmount">Bs. 0.00</span>
+            </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button class="btn btn-secondary" style="justify-content:center;" onclick="processSale(false)">💾 Guardar Venta</button>
-            <button class="btn btn-whatsapp" style="justify-content:center;" onclick="processSale(true)">💬 Guardar y Enviar</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <button class="btn btn-secondary" style="justify-content:center;" onclick="processSale(false)">💾 Guardar Venta</button>
+              <button class="btn btn-whatsapp" style="justify-content:center;" onclick="processSale(true)">💬 Guardar y Enviar</button>
+            </div>
           </div>
         </div>
 
@@ -501,7 +524,8 @@
 
         <div style="margin-bottom: 12px;">
           <label style="font-size:0.8rem; font-weight:600; color:var(--text2);">Nombre del Grano:</label>
-          <input type="text" id="newGrainName" class="pos-shadcn-input" placeholder="Ej. Quintal de Soya, Soya Molida..." />
+          <input type="text" id="newGrainName" class="pos-shadcn-input" placeholder="Ej. Quintal de Soya, Soya Molida..." list="existingProductsList" />
+          <datalist id="existingProductsList"></datalist>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
@@ -644,6 +668,8 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/pdf-generator.js"></script>
   <script src="js/whatsapp-helper.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/pos_controller.js"></script>
   <script src="js/app.js"></script>
 
 </body>

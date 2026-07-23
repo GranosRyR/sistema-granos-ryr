@@ -91,100 +91,118 @@ window.PDFGenerator = {
         const totalNum = parseFloat(saleData.totalAmount || 0);
 
         let rowsHTML = items.map((item, index) => `
-            <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 10px 12px; text-align: center; color: #475569; font-size: 13px;">${index + 1}</td>
-                <td style="padding: 10px 12px; font-size: 13px;">
-                    <strong style="color: #0f172a; display: block;">${item.productName}</strong>
-                    <span style="font-size: 11px; color: #64748b;">Lote de Origen: ${item.loteCode || 'N/A'} &middot; Presentación: ${item.unitType}</span>
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px 16px; text-align: center; color: #64748b; font-size: 13px;">${index + 1}</td>
+                <td style="padding: 12px 16px; font-size: 13px;">
+                    <strong style="color: #1e293b; font-weight: 600; display: block; margin-bottom: 2px;">${item.productName}</strong>
+                    <span style="font-size: 11.5px; color: #64748b;">Lote: ${item.loteCode || 'N/A'} &middot; Unit: ${item.unitType}</span>
                 </td>
-                <td style="padding: 10px 12px; text-align: center; font-size: 13px; font-weight: 600; color: #0f172a;">${item.quantity}</td>
-                <td style="padding: 10px 12px; text-align: right; font-size: 13px; color: #334155;">Bs. ${parseFloat(item.unitPrice).toFixed(2)}</td>
-                <td style="padding: 10px 12px; text-align: right; font-size: 13px; font-weight: bold; color: #0f172a;">Bs. ${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                <td style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #334155;">${item.quantity}</td>
+                <td style="padding: 12px 16px; text-align: right; font-size: 13px; color: #475569;">Bs. ${parseFloat(item.unitPrice).toFixed(2)}</td>
+                <td style="padding: 12px 16px; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">Bs. ${(item.quantity * item.unitPrice).toFixed(2)}</td>
             </tr>
         `).join('');
 
         return `
-            <div id="printableReceiptArea" class="word-document-letter" style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; background: #ffffff; color: #0f172a; padding: 35px 40px; border-radius: 4px; border: 1px solid #cbd5e1; max-width: 800px; margin: 0 auto; box-sizing: border-box;">
+            <div id="printableReceiptArea" class="word-document-letter" style="font-family: 'Space Grotesk', 'Plus Jakarta Sans', Arial, sans-serif; background: #ffffff; color: #0f172a; padding: 45px 50px; border-radius: 8px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; box-sizing: border-box;">
                 
-                <!-- 1. ENCABEZADO MEMBRETADO: LOGO MÁS GRANDE Y RECUADRO 'RECIBO' COMPACTO A LA DERECHA -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #b45309; padding-bottom: 18px; margin-bottom: 22px;">
-                    <!-- Logo Aumentado de Tamaño -->
-                    <div style="flex: 0 0 220px; text-align: left;">
-                        ${logoHTML}
+                <!-- 1. HEADER -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
+                    <!-- Logo & Brand -->
+                    <div style="display: flex; align-items: center;">
+                        <div>
+                            ${logoHTML}
+                        </div>
                     </div>
                     
-                    <!-- Datos de la Empresa -->
-                    <div style="flex: 1; padding: 0 10px; text-align: center;">
-                        <h1 style="margin: 0; color: #b45309; font-size: 26px; font-weight: 900; letter-spacing: 1px; font-family: 'Space Grotesk', sans-serif;">GRANOS RyR</h1>
-                        <p style="margin: 3px 0 0 0; font-size: 12px; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase;">COMERCIALIZADORA & NUTRICIÓN ANIMAL</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569;">Venta de Soya, Sorgo, Maíz, Cascarilla de Soya y Soya Molida</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">NIT: 10293847501 &middot; Tel/WhatsApp: +591 70000000 &middot; Santa Cruz - Bolivia</p>
-                    </div>
-
-                    <!-- Recuadro 'RECIBO' Más Pequeño y Pegado al Borde Derecho -->
-                    <div style="flex: 0 0 135px; background: #f8fafc; border: 1.5px solid #b45309; border-radius: 6px; padding: 8px 6px; text-align: center; margin-left: auto;">
-                        <div style="font-size: 11px; font-weight: 900; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;">RECIBO</div>
-                        <div style="font-size: 16px; font-weight: 900; color: #0f172a; margin: 3px 0;">N° #${saleData.saleId || '1001'}</div>
-                        <div style="font-size: 9px; color: #64748b; font-weight: 600;">ORIGINAL CLIENTE</div>
+                    <!-- Invoice Details -->
+                    <div style="text-align: right;">
+                        <div style="font-size: 26px; font-weight: 800; color: #e2e8f0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">RECIBO</div>
+                        <div style="font-size: 14px; color: #334155; font-weight: 600;">N° <span style="color: #0f172a;">#${saleData.saleId || '1001'}</span></div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Original Cliente</div>
                     </div>
                 </div>
 
-                <!-- 2. DATOS DEL CLIENTE Y DOCUMENTO -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
-                    <div>
-                        <p style="margin: 0 0 6px 0;"><strong>SEÑOR(ES):</strong> <span style="color: #0f172a;">${saleData.customerName || 'Cliente General'}</span></p>
-                        <p style="margin: 0;"><strong>NIT / CI:</strong> <span style="color: #0f172a;">${saleData.customerNit || 'S/N'}</span></p>
+                <!-- 2. BILLING & COMPANY INFO -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                    <!-- Billed To -->
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 3px solid #0f172a;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Recibo a</h3>
+                        <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #0f172a;">${saleData.customerName || 'Cliente General'}</p>
+                        <p style="margin: 0 0 6px 0; font-size: 13px; color: #475569;"><strong>NIT/CI:</strong> ${saleData.customerNit || 'S/N'}</p>
+                        <p style="margin: 0; font-size: 13px; color: #475569;"><strong>Método:</strong> <span style="display: inline-block; padding: 2px 8px; background: #e2e8f0; border-radius: 4px; font-size: 11px; font-weight: 600; color: #1e293b; margin-left: 4px;">${saleData.paymentMethod || 'Efectivo'}</span></p>
                     </div>
-                    <div>
-                        <p style="margin: 0 0 6px 0;"><strong>FECHA Y HORA:</strong> <span style="color: #0f172a;">${dateStr}</span></p>
-                        <p style="margin: 0;"><strong>FORMA DE PAGO:</strong> <span style="color: #b45309; font-weight: bold;">${saleData.paymentMethod || 'Efectivo'}</span></p>
+
+                    <!-- Company Info -->
+                    <div style="padding: 20px 0; text-align: right; font-size: 13px; color: #475569; line-height: 1.6;">
+                        <p style="margin: 0;"><strong>NIT:</strong> 10293847501</p>
+                        <p style="margin: 0;"><strong>WhatsApp:</strong> +591 70000000</p>
+                        <p style="margin: 0;">Santa Cruz - Bolivia</p>
+                        <p style="margin: 8px 0 0 0; color: #0f172a; font-weight: 600;">Fecha: ${dateStr.split(',')[0]}</p>
                     </div>
                 </div>
 
-                <!-- 3. TABLA FORMAL DE PRODUCTOS -->
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; border: 1px solid #cbd5e1;">
-                    <thead>
-                        <tr style="background: #0f172a; color: #ffffff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            <th style="padding: 10px; text-align: center; width: 6%;">N°</th>
-                            <th style="padding: 10px; text-align: left;">DESCRIPCIÓN DE GRANOS / LOTE</th>
-                            <th style="padding: 10px; text-align: center; width: 15%;">CANTIDAD</th>
-                            <th style="padding: 10px; text-align: right; width: 18%;">P. UNITARIO</th>
-                            <th style="padding: 10px; text-align: right; width: 20%;">SUBTOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHTML}
-                    </tbody>
-                </table>
+                ${(saleData.carPlaca || saleData.driverName || saleData.carModel) ? `
+                <!-- 3. SHIPPING / TRANSPORT -->
+                <div style="margin-bottom: 30px; padding: 16px 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 24px;">🚛</div>
+                    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                        <p style="margin: 0; color: #475569;"><strong>Placa/Modelo:</strong> <span style="color: #0f172a; font-weight: 500;">${saleData.carPlaca || 'S/P'} - ${saleData.carModel || 'S/M'}</span></p>
+                        <p style="margin: 0; color: #475569;"><strong>Conductor:</strong> <span style="color: #0f172a; font-weight: 500;">${saleData.driverName || 'No registrado'} ${saleData.driverCi ? `(CI: ${saleData.driverCi})` : ''}</span></p>
+                    </div>
+                </div>
+                ` : ''}
 
-                <!-- 4. TOTALES Y MONTO EN LETRAS -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px; gap: 20px;">
-                    <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; font-size: 12px;">
-                        <p style="margin: 0; color: #475569;"><strong>IMPORTE TOTAL:</strong></p>
-                        <p style="margin: 4px 0 0 0; font-weight: 700; color: #0f172a;">${this.numeroALetras(totalNum)}</p>
+                <!-- 4. ITEMS TABLE -->
+                <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 30px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                <th style="padding: 14px 16px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 6%;">N°</th>
+                                <th style="padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Descripción</th>
+                                <th style="padding: 14px 16px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 12%;">Cant</th>
+                                <th style="padding: 14px 16px; text-align: right; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 18%;">Precio</th>
+                                <th style="padding: 14px 16px; text-align: right; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 22%;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHTML}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 5. TOTALS -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px;">
+                    <div style="flex: 1; max-width: 60%;">
+                        <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Son:</p>
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #1e293b; background: #f8fafc; padding: 10px 14px; border-radius: 6px; display: inline-block;">${this.numeroALetras(totalNum)}</p>
                     </div>
 
-                    <div style="flex: 0 0 240px; background: #ffffff; border: 2px solid #0f172a; border-radius: 8px; padding: 14px; text-align: right;">
-                        <div style="font-size: 12px; color: #475569; font-weight: 600;">TOTAL COBRADO</div>
-                        <div style="font-size: 24px; font-weight: 900; color: #b45309; margin-top: 4px; font-family: 'Space Grotesk', sans-serif;">Bs. ${totalNum.toFixed(2)}</div>
+                    <div style="width: 250px; background: #0f172a; color: white; padding: 20px; border-radius: 12px; text-align: right; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);">
+                        <div style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total a Pagar</div>
+                        <div style="font-size: 28px; font-weight: 800;">Bs. ${totalNum.toFixed(2)}</div>
                     </div>
                 </div>
 
-                <!-- 5. FIRMAS DE CONFORMIDAD -->
-                <div style="display: flex; justify-content: space-around; margin-top: 60px; padding-top: 10px; text-align: center; font-size: 12px; color: #475569;">
-                    <div style="width: 220px; border-top: 1px solid #94a3b8; padding-top: 8px;">
-                        <strong>ENTREGADO POR</strong><br>
-                        <span>Granos RyR Nutrición Animal</span>
+                <!-- 6. SIGNATURES -->
+                <div style="display: flex; justify-content: space-between; margin-top: 80px; padding: 0 40px;">
+                    <div style="width: 200px; text-align: center;">
+                        <div style="border-top: 1px solid #cbd5e1; padding-top: 12px; margin-bottom: 4px;">
+                            <strong style="font-size: 13px; color: #0f172a;">Entregado por</strong>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b;">Granos RyR</span>
                     </div>
-                    <div style="width: 220px; border-top: 1px solid #94a3b8; padding-top: 8px;">
-                        <strong>RECIBÍ CONFORME</strong><br>
-                        <span>Firma / Sello Cliente</span>
+                    <div style="width: 200px; text-align: center;">
+                        <div style="border-top: 1px solid #cbd5e1; padding-top: 12px; margin-bottom: 4px;">
+                            <strong style="font-size: 13px; color: #0f172a;">Recibí Conforme</strong>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b;">Firma / Sello Cliente</span>
                     </div>
                 </div>
 
-                <!-- Pie Legal Documento Word -->
-                <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-                    Documento emitido por el Sistema Granos RyR &middot; Recibo Oficial Tamaño Carta
+                <!-- Footer -->
+                <div style="margin-top: 50px; text-align: center; font-size: 10.5px; color: #94a3b8; padding-top: 16px;">
+                    Documento generado por <strong>Sistema Granos RyR</strong> &middot; ¡Gracias por su preferencia!
                 </div>
             </div>
         `;
