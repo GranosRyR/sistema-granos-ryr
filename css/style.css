@@ -1033,52 +1033,65 @@ body {
 }
 
 /* =======================================================
-   📱 OPTIMIZACIÓN EXTREMA DEL MODAL PARA MÓVILES (Max 768px)
+   🛡️ FIX CTO: VISTA PREVIA DE RECIBOS EN MÓVILES
+   Protege el diseño del PDF frente a pantallas pequeñas
    ======================================================= */
+
 @media screen and (max-width: 768px) {
+    /* 1. Resetear el Modal para que ocupe toda la pantalla sin bordes molestos */
+    .modal-overlay {
+        padding: 10px;
+    }
     
-    /* 1. EL CONTENEDOR DEL MODAL: Ocupa casi todo el ancho y no se sale de pantalla */
-    .modal {
-        width: 95% !important;
-        max-width: none !important; /* Sobrescribe el límite de PC */
-        max-height: 90vh; /* Máximo 90% del alto de la pantalla */
-        margin: 5vh auto;
+    #receiptModal .modal {
+        width: 100% !important;
+        margin: 0 auto;
+        max-height: 95vh;
         display: flex;
         flex-direction: column;
-        border-radius: 12px; /* Bordes más suaves en móvil */
     }
 
-    /* 2. EL RECIBO (Cuerpo): Scroll suave y anti-desbordamiento */
-    .modal-body {
-        overflow-y: auto; /* Si el recibo es muy largo, se hace scroll interno */
-        -webkit-overflow-scrolling: touch; /* Scroll fluido como app nativa en iOS */
+    /* 2. El Contenedor de la Vista Previa (Simula una mesa donde reposa el papel) */
+    #receiptModalBody {
+        overflow-x: auto !important; /* Activa el scroll horizontal táctil */
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        background-color: #e5e7eb; /* Fondo gris oscuro para contrastar con el recibo */
         padding: 15px !important;
     }
 
-    /* 3. LA TABLA DEL RECIBO: Escala proporcional */
-    #receiptModalBody table {
-        width: 100% !important;
-        font-size: 0.8rem; /* Reducimos la letra ligeramente para que quepan cantidad y subtotales */
-        table-layout: fixed; /* Fuerza a que las columnas no rompan la pantalla */
+    /* 3. El Recibo (El Papel) - Forzamos sus proporciones originales */
+    #receiptModalBody > div {
+        min-width: 650px !important; /* ESTA ES LA CLAVE: Evita que el Flexbox colapse */
+        background-color: #ffffff;
+        padding: 30px !important;
+        margin: 0 auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Efecto sombra de papel */
+        border-radius: 8px;
+    }
+
+    /* 4. Asegurar que los textos largos no rompan la estructura interna */
+    #receiptModalBody h1, 
+    #receiptModalBody h2, 
+    #receiptModalBody h3, 
+    #receiptModalBody p, 
+    #receiptModalBody td {
+        word-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    /* 5. Asegurar que la botonera final sea siempre visible y apilada */
+    .modal div[style*="justify-content:flex-end"] {
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
     }
     
-    #receiptModalBody td, #receiptModalBody th {
-        word-wrap: break-word; /* Si el grano tiene un nombre larguísimo, baja a la siguiente línea */
-    }
-
-    /* 4. ZONA DE BOTONES (Footer): Apilados y a prueba de errores */
-    /* Apuntamos al contenedor de botones inferior del modal */
-    .modal div[style*="justify-content:flex-end"] {
-        flex-direction: column !important; /* Los apila uno debajo de otro */
-        gap: 12px !important; /* Espacio de seguridad entre botones */
-        padding: 16px !important;
-    }
-
-    /* 5. BOTONES GIGANTES Y CÓMODOS */
     .modal div[style*="justify-content:flex-end"] .btn {
-        width: 100%; /* Botones de lado a lado de la pantalla */
-        min-height: 48px; /* Altura mínima táctil recomendada por Apple/Google */
-        font-size: 1rem;
-        justify-content: center; /* Centra el texto y el ícono */
+        width: 100%;
+        min-height: 50px;
+        font-size: 1.05rem;
     }
 }
